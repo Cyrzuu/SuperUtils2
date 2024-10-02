@@ -1,7 +1,7 @@
 package me.cyrzu.git.superutils2.collection;
 
 import lombok.experimental.UtilityClass;
-import me.cyrzu.git.superutils2.other.NumberUtils;
+import me.cyrzu.git.superutils2.utils.NumberUtils;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

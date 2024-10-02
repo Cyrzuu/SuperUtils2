@@ -2,7 +2,7 @@ package me.cyrzu.git.superutils2.config.items;
 
 import me.cyrzu.git.superutils2.item.StackBuilder;
 import me.cyrzu.git.superutils2.json.JsonReader;
-import me.cyrzu.git.superutils2.other.FileUtils;
+import me.cyrzu.git.superutils2.utils.FileUtils;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;

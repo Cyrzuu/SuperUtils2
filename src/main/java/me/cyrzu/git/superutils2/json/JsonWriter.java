@@ -1,7 +1,7 @@
 package me.cyrzu.git.superutils2.json;
 
 import com.google.gson.*;
-import me.cyrzu.git.superutils2.other.FileUtils;
+import me.cyrzu.git.superutils2.utils.FileUtils;
 import me.cyrzu.git.superutils2.world.Bound;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -12,7 +12,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 

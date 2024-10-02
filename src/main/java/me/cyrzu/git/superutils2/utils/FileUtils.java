@@ -1,6 +1,5 @@
-package me.cyrzu.git.superutils2.other;
+package me.cyrzu.git.superutils2.utils;
 
-import lombok.Getter;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Contract;

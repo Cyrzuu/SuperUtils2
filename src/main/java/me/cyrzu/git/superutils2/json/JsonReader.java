@@ -2,9 +2,9 @@ package me.cyrzu.git.superutils2.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
-import me.cyrzu.git.superutils2.other.EnumUtils;
-import me.cyrzu.git.superutils2.other.FileUtils;
-import me.cyrzu.git.superutils2.other.StringUtils;
+import me.cyrzu.git.superutils2.utils.EnumUtils;
+import me.cyrzu.git.superutils2.utils.FileUtils;
+import me.cyrzu.git.superutils2.utils.StringUtils;
 import me.cyrzu.git.superutils2.world.Bound;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

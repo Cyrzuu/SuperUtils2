@@ -1,4 +1,4 @@
-package me.cyrzu.git.superutils2.other;
+package me.cyrzu.git.superutils2.helper;
 
 import lombok.Getter;
 import org.bukkit.Bukkit;

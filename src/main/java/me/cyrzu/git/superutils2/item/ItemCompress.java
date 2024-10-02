@@ -1,7 +1,7 @@
 package me.cyrzu.git.superutils2.item;
 
-import me.cyrzu.git.superutils2.other.ReflectionUtils;
-import me.cyrzu.git.superutils2.other.Version;
+import me.cyrzu.git.superutils2.utils.ReflectionUtils;
+import me.cyrzu.git.superutils2.helper.Version;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 // https://github.com/nulli0n/nightcore-spigot/blob/HEAD/src/main/java/su/nightexpress/nightcore/util/ItemNbt.java
-public class ItemNbt {
+public class ItemCompress {
 
     private static final Class<?> ITEM_STACK_CLASS   = ReflectionUtils.getClass("net.minecraft.world.item", "ItemStack");
     private static final Class<?> COMPOUND_TAG_CLASS = ReflectionUtils.getClass("net.minecraft.nbt", "NBTTagCompound");
@@ -56,7 +56,7 @@ public class ItemNbt {
             NMS_SAVE             = ReflectionUtils.getMethod(ITEM_STACK_CLASS, "b", COMPOUND_TAG_CLASS);
         }
 
-        ItemNbt.setup();
+        ItemCompress.setup();
     }
 
     private static boolean useRegistry;
@@ -159,11 +159,11 @@ public class ItemNbt {
 
     @NotNull
     public static List<String> compress(@NotNull List<ItemStack> items) {
-        return new ArrayList<>(items.stream().map(ItemNbt::compress).filter(Objects::nonNull).toList());
+        return new ArrayList<>(items.stream().map(ItemCompress::compress).filter(Objects::nonNull).toList());
     }
 
     public static ItemStack[] decompress(@NotNull List<String> list) {
-        List<ItemStack> items = list.stream().map(ItemNbt::decompress).filter(Objects::nonNull).toList();
+        List<ItemStack> items = list.stream().map(ItemCompress::decompress).filter(Objects::nonNull).toList();
         return items.toArray(new ItemStack[list.size()]);
     }
 }

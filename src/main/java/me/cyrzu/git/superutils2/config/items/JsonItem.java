@@ -7,8 +7,8 @@ import me.cyrzu.git.superutils2.item.Rarity;
 import me.cyrzu.git.superutils2.item.StackBuilder;
 import me.cyrzu.git.superutils2.json.JsonReader;
 import me.cyrzu.git.superutils2.json.JsonWriter;
-import me.cyrzu.git.superutils2.other.EnumUtils;
-import me.cyrzu.git.superutils2.other.Version;
+import me.cyrzu.git.superutils2.utils.EnumUtils;
+import me.cyrzu.git.superutils2.helper.Version;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -16,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 @Getter
 public class JsonItem {
