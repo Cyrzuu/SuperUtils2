@@ -24,5 +24,5 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.Cyrzuu:SuperUtils:TAG'
+    implementation 'com.github.Cyrzuu:SuperUtils2:TAG'
 }
