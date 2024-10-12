@@ -42,8 +42,8 @@ public class FileUtils {
     @Nullable
     @Contract("_, !null -> !null")
     @SneakyThrows
-    public String readFileToString(@NotNull File file, String def) {
-        return (String) READ_FILE_TO_STRING.invoke(null, file, StandardCharsets.UTF_8);
+    public String readFileToString(@NotNull File file, @Nullable String def) {
+        return file.exists() ? ((String) READ_FILE_TO_STRING.invoke(null, file, StandardCharsets.UTF_8)) : def;
     }
 
     public boolean createFile(@NotNull File file) {
