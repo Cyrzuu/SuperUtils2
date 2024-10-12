@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -363,8 +364,62 @@ public class JsonReader {
     }
 
     @Nullable
-    public JsonElement get(@NotNull String path) {
-        return this.get(path, null);
+    public Object getObject(@NotNull String path) {
+        return this.getObject(path, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Object getObject(@NotNull String path, @Nullable Objects def) {
+        JsonElement jsonElement = this.get(path);
+        if(jsonElement instanceof JsonObject o) {
+            return new JsonReader(o);
+        }
+
+        if(jsonElement instanceof JsonArray a) {
+            return this.getList(path, Object.class);
+        }
+
+        if(jsonElement instanceof JsonPrimitive primitive) {
+            try {
+                Field value = JsonPrimitive.class.getDeclaredField("value");
+                value.setAccessible(true);
+
+                Object item = value.get(primitive);
+                value.setAccessible(false);
+                return item;
+            } catch (Exception ignored) { }
+        }
+
+        return def;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getList(@NotNull String path, @NotNull Class<T> clazz) {
+        try {
+            Field value = JsonPrimitive.class.getDeclaredField("value");
+            value.setAccessible(true);
+
+            JsonElement jsonElement = this.get(path);
+            if(!(jsonElement instanceof JsonArray array)) {
+                return List.of();
+            }
+
+            List<T> list = new ArrayList<>();
+            for (JsonElement element : array) {
+                Object item = value.get(element);
+
+                if(clazz.isAssignableFrom(item.getClass())) {
+                    list.add((T) item);
+                } else if(!Objects.equals(clazz, String.class)) {
+                    list.add((T) item.toString());
+                }
+            }
+
+            value.setAccessible(false);
+            return List.copyOf(list);
+        } catch (Exception ignored) {}
+        return List.of();
     }
 
     public <T> void getAndRun(@NotNull String path, @NotNull Class<T> clazz, @NotNull Runnable function) {
@@ -400,6 +455,11 @@ public class JsonReader {
         } else if(json instanceof JsonArray array && clazz.equals(JsonArray.class)) {
             function.accept(clazz.cast(array));
         }
+    }
+
+    @Nullable
+    public JsonElement get(@NotNull String path) {
+        return this.get(path, null);
     }
 
     @Nullable

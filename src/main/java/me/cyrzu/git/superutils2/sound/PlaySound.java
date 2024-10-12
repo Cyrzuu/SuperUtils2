@@ -64,6 +64,18 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
         player.playSound(player.getLocation(), sound, volume.floatValue(), pitch.floatValue());
     }
 
+    public static void play(@NotNull Player player, @NotNull Sound sound) {
+        PlaySound.play(player, sound, 1F, 0.5F);
+    }
+
+    public static void play(@NotNull Player player, @NotNull Sound sound, @NotNull Number pitch) {
+        PlaySound.play(player, sound, pitch, 0.5F);
+    }
+
+    public static void play(@NotNull Player player, @NotNull Sound sound, @NotNull Number pitch, @NotNull Number volume) {
+        player.playSound(player.getLocation(), sound, pitch.floatValue(), volume.floatValue());
+    }
+
     @Nullable
     public static PlaySound getRegistered(@Nullable String soundName) {
         return soundName != null ? REGISTERED.get(soundName.toLowerCase(Locale.ROOT)) : null;

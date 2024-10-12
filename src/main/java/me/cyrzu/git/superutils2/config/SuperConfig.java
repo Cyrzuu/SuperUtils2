@@ -2,10 +2,10 @@ package me.cyrzu.git.superutils2.config;
 
 import lombok.SneakyThrows;
 import me.cyrzu.git.superutils2.color.ColorUtils;
-import me.cyrzu.git.superutils2.messages.Message;
 import me.cyrzu.git.superutils2.config.items.ItemFiles;
 import me.cyrzu.git.superutils2.config.items.JsonItem;
 import me.cyrzu.git.superutils2.item.StackBuilder;
+import me.cyrzu.git.superutils2.messages.Message;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -252,7 +252,6 @@ public class SuperConfig {
             }
 
             else if(declaredField.getType().equals(ItemStack.class) || declaredField.getType().equals(StackBuilder.class)) {
-                System.out.println("OHO " + declaredField.getType());
                 String string = configuration.getString(path, "").trim();
                 if(string.isBlank()) {
                     declaredField.set(object, declaredField.get(object));

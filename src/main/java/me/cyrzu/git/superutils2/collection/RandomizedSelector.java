@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 import java.util.function.BiPredicate;
 
-public class Values<T> {
+public class RandomizedSelector<T> {
 
     @NotNull
     private final T defaultValue;
@@ -20,17 +20,17 @@ public class Values<T> {
     @Getter
     private double total = 0D;
 
-    public Values(@NotNull T defaultValue) {
+    public RandomizedSelector(@NotNull T defaultValue) {
         this(defaultValue, false);
     }
 
-    public Values(@NotNull T defaultValue, boolean keepOrder) {
+    public RandomizedSelector(@NotNull T defaultValue, boolean keepOrder) {
         this.defaultValue = defaultValue;
         this.elements = keepOrder ? new LinkedHashMap<>() : new HashMap<>();
         this.random = new Random();
     }
 
-    public Values<T> putAll(@NotNull Map<T, Number> values) {
+    public RandomizedSelector<T> putAll(@NotNull Map<T, Number> values) {
         values.forEach((k, v) -> put(v, k));
         return this;
     }
@@ -42,7 +42,7 @@ public class Values<T> {
         total = elements.values().stream().mapToDouble(Double::doubleValue).sum();
     }
 
-    public Values<T> remove(@NotNull T value) {
+    public RandomizedSelector<T> remove(@NotNull T value) {
         elements.remove(value);
 
         total = elements.values().stream().mapToDouble(Double::doubleValue).sum();
@@ -51,9 +51,7 @@ public class Values<T> {
 
     public boolean removeIf(BiPredicate<T, Double> filter) {
         boolean removed = false;
-        Iterator<Map.Entry<T, Double>> each = elements.entrySet().iterator();
-        while (each.hasNext()) {
-            Map.Entry<T, Double> next = each.next();
+        for (Map.Entry<T, Double> next : elements.entrySet()) {
             if (filter.test(next.getKey(), next.getValue())) {
                 elements.remove(next.getKey());
                 removed = true;

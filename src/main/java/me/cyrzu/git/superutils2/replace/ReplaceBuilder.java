@@ -1,8 +1,10 @@
 package me.cyrzu.git.superutils2.replace;
 
+import me.cyrzu.git.superutils2.messages.Message;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +48,14 @@ public class ReplaceBuilder {
 
     public void sendMessage(@NotNull CommandSender sender, @NotNull String message, Object... args) {
         sender.sendMessage(this.replace(message, args));
+    }
+
+    public void sendMessage(@NotNull Player player, @Nullable Message message) {
+        if(message == null) {
+            return;
+        }
+
+
     }
 
     @NotNull

@@ -3,10 +3,13 @@ package me.cyrzu.git.superutils2.messages;
 import me.cyrzu.git.superutils2.collection.CollectionUtils;
 import me.cyrzu.git.superutils2.color.ColorUtils;
 import me.cyrzu.git.superutils2.config.Configurable;
-import me.cyrzu.git.superutils2.utils.NumberUtils;
-import me.cyrzu.git.superutils2.utils.StringUtils;
 import me.cyrzu.git.superutils2.replace.ReplaceBuilder;
 import me.cyrzu.git.superutils2.sound.PlaySound;
+import me.cyrzu.git.superutils2.utils.NumberUtils;
+import me.cyrzu.git.superutils2.utils.StringUtils;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -63,6 +66,65 @@ public class Message extends Configurable {
 
         String trim = string.trim();
         this.message = !trim.isEmpty() ? trim : null;
+    }
+
+    public void send(@NotNull CommandSender sender) {
+        if(sender instanceof Player player) {
+            this.send(player);
+            return;
+        }
+
+        if(message != null) {
+            MessageUtils.send(sender, message);
+        }
+    }
+
+    public void send(@NotNull Player player) {
+        if(message != null) {
+            player.sendMessage(message);
+        }
+
+        if(actionBar != null) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(actionBar));
+        }
+
+        if(title != null) {
+            title.send(player);
+        }
+
+        if(playSound != null) {
+            playSound.play(player);
+        }
+    }
+
+    public void send(@NotNull CommandSender sender, @NotNull ReplaceBuilder replacer, @NotNull Object... objects) {
+        if(sender instanceof Player player) {
+            this.send(player, replacer, objects);
+            return;
+        }
+
+        if(message != null) {
+            sender.sendMessage(replacer.replace(message, objects));
+        }
+    }
+
+    public void send(@NotNull Player player, @NotNull ReplaceBuilder replacer, @NotNull Object... objects) {
+        if(message != null) {
+            player.sendMessage(replacer.replace(message, objects));
+        }
+
+        if(actionBar != null) {
+            String actionbar = replacer.replace(this.actionBar, objects);
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(actionbar));
+        }
+
+        if(title != null) {
+            title.send(player, replacer, objects);
+        }
+
+        if(playSound != null) {
+            playSound.play(player);
+        }
     }
 
     private static class Title {
