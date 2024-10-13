@@ -81,17 +81,13 @@ public class ConfigSectionMapBridge<T extends ConfigurationSection> implements M
         return new ConfigSectionMapBridge<>(config);
     }
 
-    public static class File extends ConfigSectionMapBridge<FileConfiguration> {
+    public static class Yaml extends ConfigSectionMapBridge<YamlConfiguration> {
 
-        @NotNull
-        private final java.io.File file;
-
-        public File(@NotNull java.io.File file) {
-            super(YamlConfiguration.loadConfiguration(file));
-            this.file = file;
+        public Yaml() {
+            super(new YamlConfiguration());
         }
 
-        public void save() {
+        public void save(@NotNull File file) {
             try {
                 this.getConfig().save(file);
             } catch (Exception ignored) {}
