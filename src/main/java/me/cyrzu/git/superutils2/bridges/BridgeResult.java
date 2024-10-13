@@ -31,21 +31,13 @@ public class BridgeResult {
     }
 
     public Optional<Integer> getInt(@NotNull String key) {
-        return this.getObject(key, Integer.class);
+        Object value = this.getObject(key);
+        return value instanceof Number number ? Optional.of(number.intValue()) : Optional.empty();
     }
 
     public Optional<Long> getLong(@NotNull String key) {
         Object value = this.getObject(key);
-
-        if (value != null) {
-            if (value instanceof Long) {
-                return Optional.of((long) value);
-            } else if (value instanceof Integer) {
-                return Optional.of((long) (int) value);
-            }
-        }
-
-        return Optional.empty();
+        return value instanceof Number number ? Optional.of(number.longValue()) : Optional.empty();
     }
 
     public Optional<Double> getDouble(@NotNull String key) {
@@ -115,7 +107,6 @@ public class BridgeResult {
         }
 
         return list.stream()
-                .peek(o -> System.out.println(o.getClass() + " = " + clazz))
                 .filter(value -> clazz.isAssignableFrom(value.getClass()))
                 .map(value -> (T) value)
                 .toList();
@@ -147,7 +138,7 @@ public class BridgeResult {
     }
 
     @Nullable
-    private Object getObject(@NotNull String path) {
+    public Object getObject(@NotNull String path) {
         return mapBridge.get(path);
     }
 
