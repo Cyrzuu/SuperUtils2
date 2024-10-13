@@ -62,10 +62,4 @@ public interface MapBridge extends Map<String, Object> {
         throw new UnsupportedOperationException("This operation is not supported on this map.");
     }
 
-    @NotNull
-    @Override
-    default Set<Entry<String, Object>> entrySet() {
-        throw new UnsupportedOperationException("This operation is not supported on this map.");
-    }
-
 }

@@ -57,7 +57,6 @@ import java.util.Set;
 
     @Override
     public void clear() {
-
     }
 
     @Override

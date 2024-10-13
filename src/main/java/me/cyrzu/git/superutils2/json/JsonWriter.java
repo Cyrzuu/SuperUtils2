@@ -5,6 +5,7 @@ import me.cyrzu.git.superutils2.utils.FileUtils;
 import me.cyrzu.git.superutils2.world.Bound;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -20,12 +22,39 @@ public class JsonWriter {
     @NotNull
     private final JsonObject json;
 
+    public JsonWriter(@NotNull JsonObject json) {
+        this.json = json;
+    }
+
     public JsonWriter() {
         this(new JsonObject());
     }
 
-    public JsonWriter(@NotNull JsonObject json) {
-        this.json = json;
+    public JsonWriter(@NotNull Map<String, ?> map) {
+        this(new JsonObject());
+        this.set(map);
+    }
+
+    public JsonWriter set(@NotNull Map<String, ?> map) {
+        return this.set(map, null);
+    }
+
+    private JsonWriter set(@NotNull Map<?, ?> map, @Nullable String path) {
+        map.forEach((k, v) -> {
+            if(!(k instanceof String string)) {
+                return;
+            }
+
+            String newPath = path == null ? string : (path + "." + string);
+            if(v instanceof Map<?, ?> var0) {
+                this.set(var0, newPath);
+                return;
+            }
+
+            this.set(newPath, v);
+        });
+
+        return this;
     }
 
     public <T> JsonWriter set(@NotNull String path, @NotNull T value) {

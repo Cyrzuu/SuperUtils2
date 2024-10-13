@@ -1,10 +1,12 @@
 package me.cyrzu.git.superutils2.bridges.map;
 
 import me.cyrzu.git.superutils2.json.JsonReader;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Set;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class JsonSetMapBridge implements MapBridge {
 
@@ -36,6 +38,32 @@ public class JsonSetMapBridge implements MapBridge {
         return pathReader != null ? new JsonSetMapBridge(pathReader) : MapBridge.EMPTY_MAP_BRIDGE;
     }
 
+    @Override
+    public @NotNull Set<Entry<String, Object>> entrySet() {
+        Set<Entry<String, Object>> entrySet = new HashSet<>();
+
+        for (String key : reader.keySet()) {
+            Object rawValue = reader.getObject(key);
+            Object convertedValue = this.convertValue(rawValue);
+            entrySet.add(new AbstractMap.SimpleEntry<>(key, convertedValue));
+        }
+
+        return entrySet;
+    }
+
+    private Object convertValue(Object value) {
+        if (value instanceof JsonReader jsonReaderValue) {
+            Map<String, Object> mapValue = new HashMap<>();
+            for (String key : jsonReaderValue.keySet()) {
+                mapValue.put(key, this.convertValue(jsonReaderValue.getObject(key)));
+            }
+
+            return mapValue;
+        }
+
+        return value;
+    }
+
     private <T> T get(String key) {
         // noinspection all
         return (T) reader.getObject(key);
@@ -43,6 +71,7 @@ public class JsonSetMapBridge implements MapBridge {
 
     @NotNull
     public static MapBridge of(@NotNull String json) {
+
         return JsonSetMapBridge.of(JsonReader.parseString(json));
     }
 
