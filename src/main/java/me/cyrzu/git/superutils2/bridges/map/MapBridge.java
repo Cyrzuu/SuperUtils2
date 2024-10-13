@@ -68,7 +68,7 @@ public interface MapBridge extends Map<String, Object> {
 
         private final Map<String, Object> map = new LinkedHashMap<>();
 
-        private Dynamic() {
+        Dynamic() {
         }
 
         @Override
