@@ -17,9 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.lang.reflect.*;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
@@ -50,6 +48,8 @@ public class SuperConfig {
 
         this.configuration = YamlConfiguration.loadConfiguration(file);
         this.itemFiles = ItemFiles.getInstance(plugin);
+
+        this.reloadConfig();
     }
 
     public void reload() {
@@ -154,6 +154,41 @@ public class SuperConfig {
     public StackBuilder getStackBuilder(@NotNull String path, @Nullable StackBuilder def) {
         Object val = this.get(path + ".stackbuilder", def);
         return val instanceof StackBuilder itemStack ? itemStack : def;
+    }
+
+    @Nullable
+    public List<?> getList(@NotNull String path) {
+        return configuration.getList(path);
+    }
+
+    @Nullable
+    public List<?> getStringList(@NotNull String path) {
+        return configuration.getStringList(path);
+    }
+
+    @NotNull
+    public List<String> getKeys(@NotNull String path) {
+        return this.getKeys(path, false);
+    }
+
+    @NotNull
+    public List<String> getKeys(@NotNull String path, boolean deep) {
+        ConfigurationSection section = configuration.getConfigurationSection(path);
+        return section == null ? Collections.emptyList() : List.copyOf(section.getKeys(deep));
+    }
+
+    @NotNull
+    public Map<String, @NotNull ConfigurationSection> getSections(@NotNull String path) {
+        Map<String, @NotNull ConfigurationSection> map = new LinkedHashMap<>();
+
+        for (String key : this.getKeys(path)) {
+            ConfigurationSection section = configuration.getConfigurationSection(path + "." + key);
+            if(section != null) {
+                map.put(key, section);
+            }
+        }
+
+        return map;
     }
 
     @Nullable
