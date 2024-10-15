@@ -7,7 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-class DynamicMapBridge implements MapBridge {
+public class DynamicMapBridge implements MapBridge {
 
     private final Map<String, Object> map = new LinkedHashMap<>();
 
