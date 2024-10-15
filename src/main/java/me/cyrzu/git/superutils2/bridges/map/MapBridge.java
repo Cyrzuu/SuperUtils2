@@ -1,5 +1,6 @@
 package me.cyrzu.git.superutils2.bridges.map;
 
+import me.cyrzu.git.superutils2.bridges.map.MapBridge.Dynamic;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
