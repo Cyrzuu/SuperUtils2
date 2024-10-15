@@ -24,11 +24,13 @@ import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class StackBuilder extends Configurable {
 
@@ -146,7 +148,7 @@ public class StackBuilder extends Configurable {
                persistentData.put(key, persistentDataContainer.get(key, PersistentDataType.STRING));
             }
 
-            if(itemMeta instanceof SkullMeta skullMeta && skullMeta.hasOwner()) {
+            if(itemMeta instanceof SkullMeta skullMeta) {
                 this.headTexture = skullMeta.getOwnerProfile();
             }
 
@@ -316,7 +318,7 @@ public class StackBuilder extends Configurable {
             return this;
         }
 
-        PlayerProfile playerProfile = Bukkit.createPlayerProfile(new UUID(0, 0));
+        PlayerProfile playerProfile = Bukkit.createPlayerProfile(new UUID(0, 0), "Cyrzu");
         try {
             PlayerTextures textures = playerProfile.getTextures();
 
@@ -391,7 +393,7 @@ public class StackBuilder extends Configurable {
 
     @NotNull
     public ItemStack build() {
-        return this.build(Function.identity());
+        return this.build(null);
     }
 
     @NotNull
@@ -400,7 +402,7 @@ public class StackBuilder extends Configurable {
     }
 
     @NotNull
-    public ItemStack build(@NotNull Function<String, String> replace) {
+    public ItemStack build(@Nullable Function<String, String> replace) {
         ItemStack itemStack = new ItemStack(this.material);
         itemStack.setAmount(this.amount);
 
@@ -409,12 +411,17 @@ public class StackBuilder extends Configurable {
             return itemStack;
         }
 
-        if(displayName != null) {
+        if(displayName != null && replace == null) {
+            itemMeta.setDisplayName(displayName);
+        } else if(displayName != null) {
             itemMeta.setDisplayName(replace.apply(displayName));
         }
 
-        if(!lore.isEmpty()) {
-            itemMeta.setLore(lore.stream().map(replace).toList());
+        boolean loreEmpty = lore.isEmpty();
+        if(!loreEmpty && replace == null) {
+            itemMeta.setLore(lore);
+        } else if(!loreEmpty) {
+            itemMeta.setLore(lore.stream().flatMap(line -> Stream.of(LORE_NEW_LINE_PATTERN.split(line))).map(replace).toList());
         }
 
         if(itemMeta instanceof Damageable damageable) {
@@ -450,7 +457,7 @@ public class StackBuilder extends Configurable {
         }
 
         PersistentDataContainer persistentData = itemMeta.getPersistentDataContainer();
-        this.persistentData.forEach((k, v) -> persistentData.set(k, PersistentDataType.STRING, replace.apply(v)));
+        this.persistentData.forEach((k, v) -> persistentData.set(k, PersistentDataType.STRING, replace == null ? v : replace.apply(v)));
 
         if(headTexture != null && itemMeta instanceof SkullMeta skullMeta) {
             skullMeta.setOwnerProfile(headTexture);

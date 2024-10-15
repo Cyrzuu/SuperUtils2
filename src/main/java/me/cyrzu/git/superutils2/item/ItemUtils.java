@@ -26,8 +26,8 @@ import java.util.function.Consumer;
 @UtilityClass
 public class ItemUtils {
 
-    private static final UUID uuid = UUID.fromString("00000000-0000-0000-0000-000000000000");
-    private static final String url = "http://textures.minecraft.net/texture/";
+    private static final UUID UUID = new UUID(0, 0);
+    private static final String URL = "http://textures.minecraft.net/texture/";
 
     @Nullable
     public static String serialize(@NotNull ItemStack stack) {
@@ -80,10 +80,10 @@ public class ItemUtils {
     public static ItemStack getCustomHead(@NotNull String value) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         try {
-            PlayerProfile playerProfile = Bukkit.createPlayerProfile(uuid);
+            PlayerProfile playerProfile = Bukkit.createPlayerProfile(ItemUtils.UUID, "Cyrzu");
             PlayerTextures textures = playerProfile.getTextures();
 
-            URL url = new URL(value.startsWith(ItemUtils.url) ? value : ItemUtils.url + value);
+            URL url = new URL(value.startsWith(ItemUtils.URL) ? value : ItemUtils.URL + value);
             textures.setSkin(url);
             playerProfile.setTextures(textures);
 

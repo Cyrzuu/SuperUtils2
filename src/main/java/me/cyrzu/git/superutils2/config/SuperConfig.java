@@ -267,7 +267,7 @@ public class SuperConfig {
             String path = annotation.value();
 
             if (declaredField.getType().equals(String.class)) {
-                declaredField.set(object, configuration.getString(path, (String) declaredField.get(object)));
+                declaredField.set(object, configuration.getString(path, ColorUtils.parseText((String) declaredField.get(object))));
             }
 
             else if (declaredField.getType().equals(Integer.class)) {

@@ -18,10 +18,10 @@ public class DurationUtils {
                 String unit = parts[i + 1];
 
                 duration = switch (unit) {
-                    case "d","day","days" -> duration.plusDays(value);
-                    case "h","hour","hours" -> duration.plusHours(value);
-                    case "m","min","minute","minutes" -> duration.plusMinutes(value);
-                    case "s","sec","secound","secounds" -> duration.plusSeconds(value);
+                    case "d","day","days","dni" -> duration.plusDays(value);
+                    case "h","hour","hours","godzin","godz" -> duration.plusHours(value);
+                    case "m","min","minute","minutes","minut" -> duration.plusMinutes(value);
+                    case "s","sec","secound","secounds","sekund","sek" -> duration.plusSeconds(value);
                     default -> duration.plusMillis(0);
                 };
             }
