@@ -24,7 +24,6 @@ import org.bukkit.profile.PlayerTextures;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
