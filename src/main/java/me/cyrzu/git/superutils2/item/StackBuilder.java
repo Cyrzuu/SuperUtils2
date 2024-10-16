@@ -420,7 +420,8 @@ public class StackBuilder extends Configurable {
         if(!loreEmpty && replace == null) {
             itemMeta.setLore(lore);
         } else if(!loreEmpty) {
-            itemMeta.setLore(lore.stream().flatMap(line -> Stream.of(LORE_NEW_LINE_PATTERN.split(line))).map(replace).toList());
+            List<String> list = lore.stream().map(replace).flatMap(line -> Stream.of(LORE_NEW_LINE_PATTERN.split(line))).toList();
+            itemMeta.setLore(list);
         }
 
         if(itemMeta instanceof Damageable damageable) {
