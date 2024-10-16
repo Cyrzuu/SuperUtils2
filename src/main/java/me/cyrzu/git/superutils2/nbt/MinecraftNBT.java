@@ -3,6 +3,7 @@ package me.cyrzu.git.superutils2.nbt;
 import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +33,7 @@ public class MinecraftNBT implements NBT {
     }
 
     @Override
+    @Contract("_, _, _, !null -> !null")
     public <P, C> @Nullable C get(@NotNull PersistentDataHolder dataHolder, @NotNull PersistentDataType<P, C> type, @NotNull String key, @Nullable C def) {
         NamespacedKey namespacedKey = CACHE.get(key);
         if(namespacedKey == null) {

@@ -4,6 +4,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.persistence.PersistentDataHolder;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +40,7 @@ public class BukkitNBT implements NBT {
     }
 
     @Override
+    @Contract("_, _, _, !null -> !null")
     public <P, C> @Nullable C get(@NotNull PersistentDataHolder dataHolder, @NotNull PersistentDataType<P, C> type, @NotNull String key, @Nullable C def) {
         NamespacedKey namespacedKey = CACHE.get(key);
         if(namespacedKey == null) {

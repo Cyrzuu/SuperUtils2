@@ -4,6 +4,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -24,15 +25,14 @@ public class ItemBukkitNBT extends BukkitNBT implements ItemNBT {
         itemStack.setItemMeta(itemMeta);
     }
 
-    @Nullable
     @Override
-    public <P, C> C get(@NotNull ItemStack itemStack, @NotNull PersistentDataType<P, C> type, @NotNull String key) {
+    public <P, C> @Nullable C get(@NotNull ItemStack itemStack, @NotNull PersistentDataType<P, C> type, @NotNull String key) {
         return this.get(itemStack, type, key, null);
     }
 
-    @Nullable
     @Override
-    public <P, C> C get(@NotNull ItemStack itemStack, @NotNull PersistentDataType<P, C> type, @NotNull String key, @Nullable C def) {
+    @Contract("_, _, _, !null -> !null")
+    public <P, C> @Nullable C get(@NotNull ItemStack itemStack, @NotNull PersistentDataType<P, C> type, @NotNull String key, @Nullable C def) {
         ItemMeta itemMeta = itemStack.getItemMeta();
         return itemMeta != null ? this.get(itemMeta, type, key, def) : def;
     }
