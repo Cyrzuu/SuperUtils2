@@ -63,6 +63,10 @@ public class JsonWriter {
     }
 
     private <T> void setPath(@NotNull String path, @Nullable T value) {
+        if(value == null) {
+            return;
+        }
+
         String[] keys = path.split("\\.");
         String key = keys[keys.length - 1];
         JsonObject temp = json;
@@ -102,7 +106,7 @@ public class JsonWriter {
                     .set("max", bound.getMaxVector())
                     .getCopy());
         }
-        else if(value != null) {
+        else {
             temp.addProperty(key, value.toString());
         }
     }
