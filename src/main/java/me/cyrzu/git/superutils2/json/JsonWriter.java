@@ -41,7 +41,7 @@ public class JsonWriter {
 
     private JsonWriter set(@NotNull Map<?, ?> map, @Nullable String path) {
         map.forEach((k, v) -> {
-            if(!(k instanceof String string)) {
+            if(!(k instanceof String string) || v == null) {
                 return;
             }
 
