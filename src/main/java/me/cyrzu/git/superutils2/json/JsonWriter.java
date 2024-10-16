@@ -57,7 +57,7 @@ public class JsonWriter {
         return this;
     }
 
-    public <T> JsonWriter set(@NotNull String path, @NotNull T value) {
+    public <T> JsonWriter set(@NotNull String path, @Nullable T value) {
         this.setPath(path, value);
         return this;
     }
