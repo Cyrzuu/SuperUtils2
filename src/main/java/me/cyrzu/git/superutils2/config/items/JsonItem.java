@@ -31,8 +31,8 @@ public class JsonItem {
     }
 
     public JsonItem(@NotNull JsonReader reader) {
-        String headTexture = reader.getString("head_texture");
-        Material material = headTexture == null ? reader.getEnum("type", Material.class, Material.STONE) : Material.PLAYER_HEAD;
+        String headTexture = reader.getFirstString(List.of("head_texture", "headtexture", "head", "skull", "texture"));
+        Material material = headTexture == null ? reader.getFirstEnum(List.of("type", "t", "material", "m", "item", "i"), Material.class, Material.STONE) : Material.PLAYER_HEAD;
 
         StackBuilder stackBuilder = new StackBuilder(material);
 
@@ -40,29 +40,30 @@ public class JsonItem {
             stackBuilder.setHeadTexture(headTexture);
         }
 
-        stackBuilder.setAmount(reader.getInt("amount", 1));
-        stackBuilder.setName(reader.getString("name"));
-        stackBuilder.setLore(reader.getListString("lore").toArray(String[]::new));
-        reader.getAndRun("custom_model_data", Integer.class, stackBuilder::setCustomModelData);
-        reader.getAndRun("damage", Integer.class, stackBuilder::setDamage);
-        reader.getAndRun("unbreakable", Boolean.class, stackBuilder::setUnbreakable);
+        stackBuilder.setAmount(reader.getFirstInt(List.of("amount", "a", "count", "c"), 1));
+        stackBuilder.setName(reader.getFirstString(List.of("displayname", "dn", "name", "n")));
+        stackBuilder.setLore(reader.getFirstListString(List.of("lore", "l")).toArray(String[]::new));
+        reader.getAndRun(List.of("custom_model_data", "custommodeldata", "model", "cmd"), Integer.class, stackBuilder::setCustomModelData);
+        reader.getAndRun(List.of("damage", "dmg"), Integer.class, stackBuilder::setDamage);
+        reader.getAndRun(List.of("unbreakable", "unbr", "unb", "u"), Boolean.class, stackBuilder::setUnbreakable);
 
-        reader.getAndRun("all_flags", Boolean.class, stackBuilder::allFlags);
+
+        reader.getAndRun(List.of("all_flags", "allflags"), Boolean.class, stackBuilder::allFlags);
         ItemFlag[] flags = reader.getListString("flags").stream()
                 .map(value -> EnumUtils.getEnum(value, ItemFlag.class))
                 .filter(Objects::nonNull).toArray(ItemFlag[]::new);
         stackBuilder.setFlags(flags);
 
-        reader.getReader("enchants", enchants -> {
+        reader.getReader(List.of("enchantments", "enchants", "enchant", "ench", "e"), enchants -> {
             for (String enchant : enchants.keySet()) {
                 stackBuilder.addEnchantment(enchant, enchants.getInt(enchant, 1));
             }
         });
 
         if(Version.isAtLeast(Version.v1_20_R4)) {
-            stackBuilder.setRarity(reader.getEnum("rarity", Rarity.class));
-            reader.getAndRun("hide_tool_tip", Boolean.class, stackBuilder::setHideToolTip);
-            reader.getAndRun("max_stack_size", Integer.class, stackBuilder::setMaxStackSize);
+            stackBuilder.setRarity(reader.getFirstEnum(List.of("rarity", "rare"), Rarity.class));
+            reader.getAndRun(List.of("hide_tool_tip", "hidetooltip", "hidetip", "htt"), Boolean.class, stackBuilder::setHideToolTip);
+            reader.getAndRun(List.of("max_stack_size", "maxstacksize", "maxstack", "mss"), Integer.class, stackBuilder::setMaxStackSize);
         }
 
         this.stackBuilder = stackBuilder;
@@ -86,7 +87,7 @@ public class JsonItem {
                 .set("example2.max_stack_size", 1)
                 .set("example2.rarity", "EPIC")
                 .set("example2.hide_tool_tip", true)
-                .set("all_flags", true);
+                .set("example2.all_flags", true);
 
     }
 

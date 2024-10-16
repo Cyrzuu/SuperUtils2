@@ -2,7 +2,6 @@ package me.cyrzu.git.superutils2.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
-import me.cyrzu.git.superutils2.json.JsonWriter;
 import me.cyrzu.git.superutils2.utils.EnumUtils;
 import me.cyrzu.git.superutils2.utils.FileUtils;
 import me.cyrzu.git.superutils2.utils.StringUtils;
@@ -23,6 +22,9 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class JsonReader {
+
+    @NotNull
+    public static JsonReader EMPTY = new JsonReader(new JsonObject());
 
     @NotNull
     private final JsonObject jsonObject;
@@ -98,8 +100,18 @@ public class JsonReader {
         return primatives;
     }
 
+    public String getFirstString(@NotNull Collection<String> paths) {
+        return this.getFirstString(paths, null);
+    }
+
     @Nullable
-    public String getString( @NotNull String path) {
+    @Contract("_, !null -> !null")
+    public String getFirstString(@NotNull Collection<String> paths, @Nullable String def) {
+        return paths.stream().map(this::getString).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
+    @Nullable
+    public String getString(@NotNull String path) {
         return this.getString(path, null);
     }
 
@@ -114,21 +126,75 @@ public class JsonReader {
         }
     }
 
+    public int getFirstInt(@NotNull Collection<String> paths) {
+        return this.getFirstInt(paths, 0);
+    }
+
+    public int getFirstInt(@NotNull Collection<String> paths, int def) {
+        for (String path : paths) {
+            JsonElement jsonElement = this.get(path);
+            if(!(jsonElement instanceof JsonPrimitive primitive) || !primitive.isNumber()) {
+                continue;
+            }
+
+            def = jsonElement.getAsInt();
+            break;
+        }
+
+        return def;
+    }
+
     public int getInt(@NotNull String path) {
         return getInt(path, 0);
     }
 
     public int getInt(@NotNull String path, int def) {
         try {
-            JsonElement element = get(path);
+            JsonElement element = this.get(path);
             return element == null ? def : element.getAsInt();
         } catch (Exception e) {
             return def;
         }
     }
 
+    public boolean getFirstBoolean(@NotNull Collection<String> paths) {
+        return this.getFirstBoolean(paths, false);
+    }
+
+    public boolean getFirstBoolean(@NotNull Collection<String> paths, boolean def) {
+        for (String path : paths) {
+            JsonElement jsonElement = this.get(path);
+            if(!(jsonElement instanceof JsonPrimitive primitive) || !primitive.isBoolean()) {
+                continue;
+            }
+
+            def = primitive.getAsBoolean();
+            break;
+        }
+
+        return def;
+    }
+
     public boolean getBoolean(@NotNull JsonObject object, @NotNull String path) {
         return getBoolean(path, false);
+    }
+
+    public double getFirstDouble(@NotNull Collection<String> paths) {
+        return this.getFirstDouble(paths, 0D);
+    }
+
+    public double getFirstDouble(@NotNull Collection<String> paths, double def) {
+        for (String path : paths) {
+            JsonElement jsonElement = this.get(path);
+            if(!(jsonElement instanceof JsonPrimitive primitive) || !primitive.isNumber()) {
+                continue;
+            }
+
+            def = primitive.getAsDouble();
+            break;
+        }
+
+        return def;
     }
 
     public boolean getBoolean(@NotNull String path, boolean def) {
@@ -152,6 +218,23 @@ public class JsonReader {
             return def;
         }
     }
+    public long getFirstLong(@NotNull Collection<String> paths) {
+        return this.getFirstLong(paths, 0L);
+    }
+
+    public long getFirstLong(@NotNull Collection<String> paths, long def) {
+        for (String path : paths) {
+            JsonElement jsonElement = this.get(path);
+            if(!(jsonElement instanceof JsonPrimitive primitive) || !primitive.isNumber()) {
+                continue;
+            }
+
+            def = primitive.getAsLong();
+            break;
+        }
+
+        return def;
+    }
 
     public long getLong(@NotNull String path) {
         return getLong(path, 0);
@@ -167,6 +250,17 @@ public class JsonReader {
     }
 
     @Nullable
+    public <T extends Enum<T>> T getFirstEnum(@NotNull Collection<String> paths, @NotNull Class<T> clazz) {
+        return this.getFirstEnum(paths, clazz, null);
+    }
+
+    @Nullable
+    @Contract("_, _, !null -> !null")
+    public <T extends Enum<T>> T getFirstEnum(@NotNull Collection<String> paths, @NotNull Class<T> clazz, @Nullable T def) {
+        return paths.stream().map(path -> this.getEnum(path, clazz)).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
+    @Nullable
     public <T extends Enum<T>> T getEnum(@NotNull String path, @NotNull Class<T> clazz) {
         return getEnum(path, clazz, null);
     }
@@ -176,6 +270,18 @@ public class JsonReader {
     public <T extends Enum<T>> T getEnum(@NotNull String path, @NotNull Class<T> clazz, @Nullable T def) {
         return EnumUtils.getEnum(getString(path, ""), clazz, def);
     }
+
+    @Nullable
+    public Location getFirstLocation(@NotNull Collection<String> paths) {
+        return this.getFirstLocation(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Location getFirstLocation(@NotNull Collection<String> paths, @Nullable Location def) {
+        return paths.stream().map(this::getLocation).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
 
     @Nullable
     public Location getLocation(@NotNull String path) {
@@ -199,6 +305,18 @@ public class JsonReader {
     }
 
     @Nullable
+    public Location getFirstLocationBlock(@NotNull Collection<String> paths) {
+        return this.getFirstLocationBlock(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Location getFirstLocationBlock(@NotNull Collection<String> paths, @Nullable Location def) {
+        return paths.stream().map(this::getLocationBlock).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
+
+    @Nullable
     public Location getLocationBlock(@NotNull String path) {
         return this.getLocationBlock(path, null);
     }
@@ -220,6 +338,18 @@ public class JsonReader {
     }
 
     @Nullable
+    public Vector getFirstVector(@NotNull Collection<String> paths) {
+        return this.getFirstVector(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Vector getFirstVector(@NotNull Collection<String> paths, @Nullable Vector def) {
+        return paths.stream().map(this::getVector).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
+
+    @Nullable
     public Vector getVector(@NotNull String path) {
         return this.getVector(path, null);
     }
@@ -234,6 +364,18 @@ public class JsonReader {
 
         return new Vector(reader.getDouble("x"), reader.getDouble("y"), reader.getDouble("z"));
     }
+
+    @Nullable
+    public Bound getFirstBound(@NotNull Collection<String> paths) {
+        return this.getFirstBound(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Bound getFirstBound(@NotNull Collection<String> paths, @Nullable Bound def) {
+        return paths.stream().map(this::getBound).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
 
     @Nullable
     public Bound getBound(@NotNull String path) {
@@ -262,7 +404,7 @@ public class JsonReader {
 
     @NotNull
     public JsonArray getJsonArray(@NotNull String path) {
-        return getJsonArray(path, new JsonArray());
+        return this.getJsonArray(path, new JsonArray());
     }
 
     @Nullable
@@ -274,8 +416,19 @@ public class JsonReader {
 
     @NotNull
     public List<String> getListString(@NotNull String path) {
-        return getListString(path, new ArrayList<>());
+        return this.getListString(path, new ArrayList<>());
     }
+
+    @NotNull
+    public List<String> getFirstListString(@NotNull Collection<String> paths) {
+        return this.getFirstListString(paths, List.of());
+    }
+
+    @NotNull
+    public List<String> getFirstListString(@NotNull Collection<String> paths, @NotNull List<String> def) {
+        return paths.stream().map(this::getListString).filter(list -> !list.isEmpty()).findFirst().orElse(def);
+    }
+
 
     @NotNull
     public List<String> getListString(@NotNull String path, @NotNull List<String> def) {
@@ -290,6 +443,17 @@ public class JsonReader {
             return def;
         }
     }
+
+    @NotNull
+    public List<JsonReader> getFirstListReader(@NotNull Collection<String> paths) {
+        return this.getFirstListReader(paths, List.of());
+    }
+
+    @NotNull
+    public List<JsonReader> getFirstListReader(@NotNull Collection<String> paths, @NotNull List<JsonReader> def) {
+        return paths.stream().map(this::getListReader).filter(list -> !list.isEmpty()).findFirst().orElse(def);
+    }
+
 
     @NotNull
     public List<JsonReader> getListReader(@NotNull String path) {
@@ -314,6 +478,17 @@ public class JsonReader {
         }
     }
 
+    @NotNull
+    public List<JsonElement> getFirstList(@NotNull Collection<String> paths) {
+        return this.getFirstList(paths, List.of());
+    }
+
+    @NotNull
+    @Contract("_, !null -> !null")
+    public List<JsonElement> getFirstList(@NotNull Collection<String> paths, @NotNull List<JsonElement> def) {
+        return paths.stream().map(this::getList).filter(list -> !list.isEmpty()).findFirst().orElse(def);
+    }
+
     @Nullable
     public List<JsonElement> getList(@NotNull String path) {
         return this.getList(path, new ArrayList<>());
@@ -332,6 +507,17 @@ public class JsonReader {
     }
 
     @Nullable
+    public UUID getFirstUUID(@NotNull Collection<String> paths) {
+        return this.getFirstUUID(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public UUID getFirstUUID(@NotNull Collection<String> paths, @Nullable UUID def) {
+        return paths.stream().map(this::getUUID).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
+    @Nullable
     public UUID getUUID(@NotNull String path) {
         return this.getUUID(path, null);
     }
@@ -344,13 +530,32 @@ public class JsonReader {
     }
 
     public void getReader(@NotNull String path, @NotNull Consumer<JsonReader> fun) {
-        JsonReader reader = this.getReader(path);
-        if(reader == null) {
+        this.getReader(Collections.singletonList(path), fun);
+    }
+
+    public void getReader(@NotNull Collection<String> paths, @NotNull Consumer<JsonReader> fun) {
+        for (String path : paths) {
+            JsonReader reader = this.getReader(path);
+            if(reader == null) {
+                continue;
+            }
+
+            fun.accept(reader);
             return;
         }
-
-        fun.accept(reader);
     }
+
+    @Nullable
+    public JsonReader getFirstReader(@NotNull Collection<String> paths) {
+        return this.getFirstReader(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public JsonReader getFirstReader(@NotNull Collection<String> paths, @Nullable JsonReader def) {
+        return paths.stream().map(this::getReader).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
 
     @Nullable
     public JsonReader getReader(@NotNull String path) {
@@ -363,6 +568,18 @@ public class JsonReader {
         JsonElement jsonElement = this.get(path);
         return jsonElement instanceof JsonObject object ? new JsonReader(object) : def;
     }
+
+    @Nullable
+    public Object getFirstObject(@NotNull Collection<String> paths) {
+        return this.getFirstObject(paths, null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public Object getFirstObject(@NotNull Collection<String> paths, @Nullable Object def) {
+        return paths.stream().map(this::getObject).filter(Objects::nonNull).findFirst().orElse(def);
+    }
+
 
     @Nullable
     public Object getObject(@NotNull String path) {
@@ -427,34 +644,48 @@ public class JsonReader {
         this.getAndRun(path, clazz, (value) -> function.run());
     }
 
+    public <T> void getAndRun(@NotNull List<String> paths, @NotNull Class<T> clazz, @NotNull Runnable function) {
+        this.getAndRun(paths, clazz, (value) -> function.run());
+    }
+
     public <T> void getAndRun(@NotNull String path, @NotNull Class<T> clazz, @NotNull Consumer<T> function) {
-        JsonElement json = this.get(path);
-        if(json instanceof JsonObject obj && clazz.equals(JsonReader.class)) {
-            function.accept(clazz.cast(JsonReader.parseObject(obj)));
-        } else if(json instanceof JsonObject obj && clazz.equals(JsonObject.class)) {
-            function.accept(clazz.cast(JsonReader.parseObject(obj)));
-        } else if (json instanceof JsonPrimitive primitive) {
-            Object value = null;
+        this.getAndRun(Collections.singletonList(path), clazz, function);
+    }
 
-            if (clazz.equals(String.class)) {
-                value = primitive.getAsString();
-            } else if ((clazz.equals(Integer.class) || clazz.equals(int.class)) && primitive.isNumber()) {
-                value = primitive.getAsInt();
-            } else if ((clazz.equals(Double.class) || clazz.equals(double.class)) && primitive.isNumber()) {
-                value = primitive.getAsDouble();
-            } else if ((clazz.equals(Boolean.class) || clazz.equals(boolean.class)) && primitive.isBoolean()) {
-                value = primitive.getAsBoolean();
-            } else if ((clazz.equals(Long.class) || clazz.equals(long.class)) && primitive.isNumber()) {
-                value = primitive.getAsLong();
-            } else if ((clazz.equals(Float.class) || clazz.equals(float.class)) && primitive.isNumber()) {
-                value = primitive.getAsFloat();
-            }
+    public <T> void getAndRun(@NotNull Collection<String> paths, @NotNull Class<T> clazz, @NotNull Consumer<T> function) {
+        for (String path : paths) {
+            JsonElement json = this.get(path);
+            if(json instanceof JsonObject obj && clazz.equals(JsonReader.class)) {
+                function.accept(clazz.cast(JsonReader.parseObject(obj)));
+                return;
+            } else if(json instanceof JsonObject obj && clazz.equals(JsonObject.class)) {
+                function.accept(clazz.cast(JsonReader.parseObject(obj)));
+                return;
+            } else if (json instanceof JsonPrimitive primitive) {
+                Object value = null;
 
-            if(value != null && clazz.equals(value.getClass())) {
-                function.accept(clazz.cast(value));
+                if (clazz.equals(String.class)) {
+                    value = primitive.getAsString();
+                } else if ((clazz.equals(Integer.class) || clazz.equals(int.class)) && primitive.isNumber()) {
+                    value = primitive.getAsInt();
+                } else if ((clazz.equals(Double.class) || clazz.equals(double.class)) && primitive.isNumber()) {
+                    value = primitive.getAsDouble();
+                } else if ((clazz.equals(Boolean.class) || clazz.equals(boolean.class)) && primitive.isBoolean()) {
+                    value = primitive.getAsBoolean();
+                } else if ((clazz.equals(Long.class) || clazz.equals(long.class)) && primitive.isNumber()) {
+                    value = primitive.getAsLong();
+                } else if ((clazz.equals(Float.class) || clazz.equals(float.class)) && primitive.isNumber()) {
+                    value = primitive.getAsFloat();
+                }
+
+                if(value != null && clazz.equals(value.getClass())) {
+                    function.accept(clazz.cast(value));
+                    return;
+                }
+            } else if(json instanceof JsonArray array && clazz.equals(JsonArray.class)) {
+                function.accept(clazz.cast(array));
+                return;
             }
-        } else if(json instanceof JsonArray array && clazz.equals(JsonArray.class)) {
-            function.accept(clazz.cast(array));
         }
     }
 
@@ -499,18 +730,40 @@ public class JsonReader {
         }
     }
 
+    @NotNull
+    public static JsonReader parseFileOrEmpty(@Nullable File file) {
+        return file != null ? JsonReader.parseFile(file, EMPTY) : EMPTY;
+    }
+
     @Nullable
     public static JsonReader parseFile(@NotNull File file) {
         return JsonReader.parseString(FileUtils.readFileToString(file, "{}"));
     }
 
     @Nullable
+    @Contract("_, !null -> !null")
+    public static JsonReader parseFile(@NotNull File file, @Nullable JsonReader def) {
+        return JsonReader.parseString(FileUtils.readFileToString(file, "{}"), def);
+    }
+
+    @NotNull
+    public static JsonReader parseStringOrEmpty(@Nullable String json) {
+        return json != null ? JsonReader.parseString(json, EMPTY) : EMPTY;
+    }
+
+    @Nullable
     public static JsonReader parseString(@NotNull String json) {
+        return JsonReader.parseString(json, (JsonReader) null);
+    }
+
+    @Nullable
+    @Contract("_, !null -> !null")
+    public static JsonReader parseString(@NotNull String json, @Nullable JsonReader def) {
         try {
             JsonElement element = JsonParser.parseString(json);
             return element instanceof JsonObject object ? new JsonReader(object) : null;
         } catch (Exception e) {
-            return null;
+            return def;
         }
     }
 
