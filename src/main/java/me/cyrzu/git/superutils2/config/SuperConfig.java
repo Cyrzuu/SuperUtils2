@@ -6,11 +6,13 @@ import me.cyrzu.git.superutils2.config.items.ItemFiles;
 import me.cyrzu.git.superutils2.config.items.JsonItem;
 import me.cyrzu.git.superutils2.item.StackBuilder;
 import me.cyrzu.git.superutils2.messages.Message;
+import me.cyrzu.git.superutils2.utils.FileUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +47,16 @@ public class SuperConfig {
         if(!file.exists()) {
             plugin.saveResource(resource, false);
         }
+
+        this.configuration = YamlConfiguration.loadConfiguration(file);
+        this.itemFiles = ItemFiles.getInstance(plugin);
+
+        this.reloadConfig();
+    }
+
+    public SuperConfig(@NotNull Plugin plugin, @NotNull File file) {
+        this.file = file;
+        FileUtils.createFile(file);
 
         this.configuration = YamlConfiguration.loadConfiguration(file);
         this.itemFiles = ItemFiles.getInstance(plugin);
