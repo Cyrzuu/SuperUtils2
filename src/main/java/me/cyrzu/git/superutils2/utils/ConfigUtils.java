@@ -2,10 +2,12 @@ package me.cyrzu.git.superutils2.utils;
 
 import lombok.experimental.UtilityClass;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.Map;
 
 @UtilityClass
@@ -35,6 +37,13 @@ public class ConfigUtils {
 
             section.set(newPath, v);
         });
+    }
+
+    public void save(@NotNull FileConfiguration config, @NotNull File file) {
+        FileUtils.createFile(file);
+        try {
+            config.save(file);
+        } catch (Exception ignored) {}
     }
 
 }

@@ -482,11 +482,12 @@ public class StackBuilder extends Configurable {
         sb.append(material).append(" x ").append(amount);
 
         if (displayName != null) {
-            sb.append(", displayName='").append(displayName).append('\'');
+            sb.append(", displayName='").append(displayName).append(ChatColor.RESET).append('\'');
         }
 
         if (!lore.isEmpty()) {
-            sb.append(", lore=").append(lore);
+            String collect = lore.stream().collect(Collectors.joining(ChatColor.RESET + ", "));
+            sb.append(", lore=").append("[").append(collect).append(ChatColor.RESET).append("]");
         }
 
         if (unbreakable) {

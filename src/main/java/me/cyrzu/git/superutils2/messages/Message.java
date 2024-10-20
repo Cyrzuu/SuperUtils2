@@ -7,6 +7,7 @@ import me.cyrzu.git.superutils2.replace.ReplaceBuilder;
 import me.cyrzu.git.superutils2.sound.PlaySound;
 import me.cyrzu.git.superutils2.utils.NumberUtils;
 import me.cyrzu.git.superutils2.utils.StringUtils;
+import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.CommandSender;
@@ -34,25 +35,35 @@ public class Message extends Configurable {
     @Nullable
     private String actionBar;
 
+    @Override
+    public String toString() {
+        return "Message{" +
+                "message='" + message + '\'' + ChatColor.RESET +
+                ", actionBar='" + actionBar + '\'' + ChatColor.RESET +
+                ", playSound=" + playSound + ChatColor.RESET +
+                ", title=" + title +
+                '}';
+    }
+
     public Message(Object object) {
         if(!(object instanceof String string)) {
             this.message = Objects.toString(object);
             return;
         }
 
-        string = ColorUtils.parseText(string);
         for (var entry : StringUtils.parseKeyValueDefinition(string).entrySet()) {
+            String value = ColorUtils.parseText(entry.getValue());
             switch (entry.getKey().toLowerCase()) {
                 case "sound","s" -> {
-                    Map<String, String> soundMap = StringUtils.parseKeyValue(entry.getValue());
+                    Map<String, String> soundMap = StringUtils.parseKeyValue(value);
                     String sound = CollectionUtils.getFirstPresemt("minecraft:ui.button.click", soundMap, "sound", "s", "type", "name");
                     double volume = NumberUtils.parseDouble(CollectionUtils.getFirstPresemt("0.5", soundMap, "volume", "v", "vol"));
-                    double pitch = NumberUtils.parseDouble(CollectionUtils.getFirstPresemt("0.5", soundMap, "pitch", "p", "pit"));
+                    double pitch = NumberUtils.parseDouble(CollectionUtils.getFirstPresemt("1.0", soundMap, "pitch", "p", "pit"));
                     this.playSound = new PlaySound(sound, volume, pitch);
                 }
-                case "title","t" -> this.title = new Title(StringUtils.parseKeyValue(entry.getValue()));
+                case "title","t" -> this.title = new Title(StringUtils.parseKeyValue(value));
                 case "actionbar","actionmessage","ab","am" -> {
-                    Map<String, String> actionBarMap = StringUtils.parseKeyValue(entry.getValue());
+                    Map<String, String> actionBarMap = StringUtils.parseKeyValue(value);
                     this.actionBar = CollectionUtils.getFirstPresemt(actionBarMap, "message", "m", "text");
                 }
                 default -> {
@@ -60,12 +71,29 @@ public class Message extends Configurable {
                 }
             }
 
-            String text = "(%1$s={%2$s}|%1$s:{%2$s})".formatted(entry.getKey(), entry.getValue());
+            String text = "(%1$s=\\{%2$s\\}|%1$s:\\{%2$s\\})".formatted(entry.getKey(), entry.getValue());
+            string = string.replaceAll(text, "");
+        }
+
+        for (Map.Entry<String, String> entry : StringUtils.parseKeyValue(string).entrySet()) {
+            String value = ColorUtils.parseText(entry.getValue());
+            switch (entry.getKey().toLowerCase()) {
+                case "actionbar", "actionmessage", "ab", "am" -> this.actionBar = value;
+                case "title", "t" -> {
+                    String[] split = value.split("(\n|\\\\n)", 2);
+                    this.title = split.length == 1 ? new Title(split[0], "") : new Title(split[0], split[1]);
+                }
+                default -> {
+                    continue;
+                }
+            }
+
+            String text = "(%1$s=\"%2$s\"|%1$s:\"%2$s\")".formatted(entry.getKey(), entry.getValue());
             string = string.replaceAll(text, "");
         }
 
         String trim = string.trim();
-        this.message = !trim.isEmpty() ? trim : null;
+        this.message = !trim.isEmpty() ? ColorUtils.parseText(trim) : null;
     }
 
     public void send(@NotNull CommandSender sender) {
@@ -146,12 +174,31 @@ public class Message extends Configurable {
             this.fadeOut = NumberUtils.parseInteger(CollectionUtils.getFirstPresemt("10", map, "fadeout", "fo", "out", "to"));
         }
 
+        public Title(@NotNull String title, @NotNull String subtitle) {
+            this.title = title;
+            this.subtitle = subtitle;
+            this.fadeIn = 5;
+            this.duration = 45;
+            this.fadeOut = 5;
+        }
+
         public void send(@NotNull Player player, @NotNull ReplaceBuilder replacer, @NotNull Object... objects) {
             player.sendTitle(replacer.replace(title, objects), replacer.replace(subtitle, objects), fadeIn, duration, fadeOut);
         }
 
         public void send(@NotNull Player player) {
             player.sendTitle(title, subtitle, fadeIn, duration, fadeOut);
+        }
+
+        @Override
+        public String toString() {
+            return "Title{" +
+                    "duration=" + duration +
+                    ", title='" + title + '\'' +
+                    ", subtitle='" + subtitle + '\'' +
+                    ", fadeIn=" + fadeIn +
+                    ", fadeOut=" + fadeOut +
+                    '}';
         }
 
     }
