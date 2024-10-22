@@ -73,7 +73,7 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
     }
 
     public static void play(@NotNull Player player, @NotNull Sound sound, @NotNull Number pitch, @NotNull Number volume) {
-        player.playSound(player.getLocation(), sound, pitch.floatValue(), volume.floatValue());
+        player.playSound(player.getLocation(), sound, volume.floatValue(), pitch.floatValue());
     }
 
     @Nullable
