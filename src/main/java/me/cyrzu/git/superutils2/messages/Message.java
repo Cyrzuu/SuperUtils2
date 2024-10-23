@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class Message extends Configurable {
 
@@ -64,15 +65,17 @@ public class Message extends Configurable {
                 case "title","t" -> this.title = new Title(StringUtils.parseKeyValue(value));
                 case "actionbar","actionmessage","ab","am" -> {
                     Map<String, String> actionBarMap = StringUtils.parseKeyValue(value);
-                    this.actionBar = CollectionUtils.getFirstPresemt(actionBarMap, "message", "m", "text");
+                    this.actionBar = CollectionUtils.getFirstPresemt(actionBarMap, "message", "m", "text", "actionbar", "ab");
                 }
                 default -> {
                     continue;
                 }
             }
 
-            String text = "(%1$s=\\{%2$s\\}|%1$s:\\{%2$s\\})".formatted(entry.getKey(), entry.getValue());
-            string = string.replaceAll(text, "");
+            String text = "%s={%s}".formatted(entry.getKey(), entry.getValue());
+            string = string.replace(text, "");
+            text = "%s:{%s}".formatted(entry.getKey(), entry.getValue());
+            string = string.replace(text, "");
         }
 
         for (Map.Entry<String, String> entry : StringUtils.parseKeyValue(string).entrySet()) {
@@ -88,8 +91,10 @@ public class Message extends Configurable {
                 }
             }
 
-            String text = "(%1$s=\"%2$s\"|%1$s:\"%2$s\")".formatted(entry.getKey(), entry.getValue());
-            string = string.replaceAll(text, "");
+            String text = "%s=\"%s\"".formatted(entry.getKey(), entry.getValue());
+            string = string.replace(text, "");
+            text = "%s:\"%s\"".formatted(entry.getKey(), entry.getValue());
+            string = string.replace(text, "");
         }
 
         String trim = string.trim();
