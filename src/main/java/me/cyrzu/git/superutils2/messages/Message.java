@@ -1,5 +1,6 @@
 package me.cyrzu.git.superutils2.messages;
 
+import lombok.Getter;
 import me.cyrzu.git.superutils2.collection.CollectionUtils;
 import me.cyrzu.git.superutils2.color.ColorUtils;
 import me.cyrzu.git.superutils2.config.Configurable;
@@ -24,15 +25,19 @@ public class Message extends Configurable {
     @NotNull
     public final static Message EMPTY_MESSAGE = new Message("");
 
+    @Getter
     @Nullable
     private final String message;
 
+    @Getter
     @Nullable
     private PlaySound playSound;
 
+    @Getter
     @Nullable
     private Title title;
 
+    @Getter
     @Nullable
     private String actionBar;
 
@@ -130,6 +135,23 @@ public class Message extends Configurable {
         }
     }
 
+    @Nullable
+    public String sendWithoutActionBar(@NotNull Player player) {
+        if(message != null) {
+            player.sendMessage(message);
+        }
+
+        if(title != null) {
+            title.send(player);
+        }
+
+        if(playSound != null) {
+            playSound.play(player);
+        }
+
+        return actionBar;
+    }
+
     public void send(@NotNull CommandSender sender, @NotNull ReplaceBuilder replacer, @NotNull Object... objects) {
         if(sender instanceof Player player) {
             this.send(player, replacer, objects);
@@ -160,6 +182,24 @@ public class Message extends Configurable {
         }
     }
 
+    @Nullable
+    public String sendWithoutActionBar(@NotNull Player player, @NotNull ReplaceBuilder replacer, @NotNull Object... objects) {
+        if(message != null) {
+            player.sendMessage(replacer.replace(message, objects));
+        }
+
+        if(title != null) {
+            title.send(player, replacer, objects);
+        }
+
+        if(playSound != null) {
+            playSound.play(player);
+        }
+
+        return actionBar != null ? replacer.replace(this.actionBar, objects) : null;
+    }
+
+    @Getter
     private static class Title {
 
         @NotNull
