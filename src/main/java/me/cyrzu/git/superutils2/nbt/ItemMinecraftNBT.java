@@ -42,7 +42,7 @@ public class ItemMinecraftNBT extends MinecraftNBT implements ItemNBT {
     @Override
     public <P, C> boolean has(@NotNull ItemStack itemStack, @NotNull PersistentDataType<P, C> type, @NotNull String key) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        return itemMeta != null && this.has(itemStack, type, key);
+        return itemMeta != null && this.has(itemMeta, type, key);
     }
 
 }

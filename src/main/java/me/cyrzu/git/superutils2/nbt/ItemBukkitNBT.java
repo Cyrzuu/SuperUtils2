@@ -1,5 +1,6 @@
 package me.cyrzu.git.superutils2.nbt;
 
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -12,6 +13,11 @@ public class ItemBukkitNBT extends BukkitNBT implements ItemNBT {
 
     public ItemBukkitNBT(@NotNull Plugin plugin) {
         super(plugin);
+    }
+
+    @Override
+    public @NotNull NamespacedKey getKey(@NotNull String key) {
+        return super.getKey(key);
     }
 
     @Override
@@ -46,7 +52,7 @@ public class ItemBukkitNBT extends BukkitNBT implements ItemNBT {
     @Override
     public <P, C> boolean has(@NotNull ItemStack itemStack, @NotNull PersistentDataType<P, C> type, @NotNull String key) {
         ItemMeta itemMeta = itemStack.getItemMeta();
-        return itemMeta != null && this.has(itemStack, type, key);
+        return itemMeta != null && this.has(itemMeta, type, key);
     }
 
 }

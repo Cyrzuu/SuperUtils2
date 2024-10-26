@@ -16,6 +16,17 @@ public class MinecraftNBT implements NBT {
     private final static Map<String, NamespacedKey> CACHE = new HashMap<>();
 
     @Override
+    public @NotNull NamespacedKey getKey(@NotNull String key) {
+        NamespacedKey namespacedKey = CACHE.get(key);
+        if(namespacedKey == null) {
+            namespacedKey = NamespacedKey.minecraft(key);
+            CACHE.put(key, namespacedKey);
+        }
+
+        return namespacedKey;
+    }
+
+    @Override
     public <P, C> void set(@NotNull PersistentDataHolder dataHolder, @NotNull PersistentDataType<P, C> type, @NotNull String key, @NotNull C value) {
         NamespacedKey namespacedKey = CACHE.get(key);
         if(namespacedKey == null) {

@@ -5,11 +5,14 @@ import me.cyrzu.git.superutils2.collection.CollectionUtils;
 import me.cyrzu.git.superutils2.color.ColorUtils;
 import me.cyrzu.git.superutils2.config.Configurable;
 import me.cyrzu.git.superutils2.helper.Version;
+import me.cyrzu.git.superutils2.nbt.ItemNBT;
 import me.cyrzu.git.superutils2.replace.ReplaceBuilder;
 import me.cyrzu.git.superutils2.utils.EnumUtils;
 import me.cyrzu.git.superutils2.utils.NumberUtils;
 import me.cyrzu.git.superutils2.utils.StringUtils;
 import org.bukkit.*;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -35,6 +38,9 @@ public class StackBuilder extends Configurable {
 
     @NotNull
     private static final Pattern LORE_NEW_LINE_PATTERN = Pattern.compile("(\\\\n|\\n)");
+
+    @NotNull
+    private static final Enchantment UNBREAKING = Objects.requireNonNull(Enchantment.getByKey(NamespacedKey.minecraft("unbreaking")));
 
     @Getter
     @NotNull
@@ -86,6 +92,9 @@ public class StackBuilder extends Configurable {
     private Boolean hideToolTip;
 
     private boolean glow;
+
+    @NotNull
+    private Map<NamespacedKey, Map.Entry<Attribute, AttributeModifier>> attributes = new HashMap<>();
 
     public StackBuilder(@NotNull Material material) {
         this(material, 1);
@@ -150,6 +159,16 @@ public class StackBuilder extends Configurable {
             if(itemMeta instanceof SkullMeta skullMeta) {
                 this.headTexture = skullMeta.getOwnerProfile();
             }
+
+            Optional.ofNullable(itemMeta.getAttributeModifiers()).ifPresent(map -> map.forEach((attr, mod) -> {
+                if(Version.isAtLeast(Version.v1_21_R1)) {
+                    attributes.put(mod.getKey(), new AbstractMap.SimpleEntry<>(attr, mod));
+                    return;
+                }
+
+                NamespacedKey key = NamespacedKey.minecraft(mod.getName());
+                attributes.put(key, new AbstractMap.SimpleEntry<>(attr, mod));
+            }));
 
             enchantments.putAll(itemMeta.getEnchants());
             flags.addAll(itemMeta.getItemFlags());
@@ -336,6 +355,17 @@ public class StackBuilder extends Configurable {
         return this;
     }
 
+    public StackBuilder addPersistentData(@NotNull ItemNBT itemNBT, @NotNull String key, @NotNull String value) {
+        NamespacedKey namespacedKey = itemNBT.getKey(key);
+        persistentData.put(namespacedKey, value);
+        return this;
+    }
+
+    public StackBuilder addPersistentData(@NotNull NamespacedKey key, @NotNull String value) {
+        persistentData.put(key, value);
+        return this;
+    }
+
     public StackBuilder addEnchantment(@NotNull Enchantment enchantment, int level) {
         enchantments.put(enchantment, level);
         return this;
@@ -362,6 +392,13 @@ public class StackBuilder extends Configurable {
     public StackBuilder setEnchantments(@NotNull Map<Enchantment, Integer> enchantments) {
         this.clearEnchantments();
         return this.addEnchantments(enchantments);
+    }
+
+    @NotNull
+    public StackBuilder addAttributeModifier(@NotNull Attribute attribute, @NotNull AttributeModifier modifier) {
+        NamespacedKey key = NamespacedKey.minecraft(modifier.getName());
+        attributes.put(key, new AbstractMap.SimpleEntry<>(attribute, modifier));
+        return this;
     }
 
     @NotNull
@@ -466,10 +503,15 @@ public class StackBuilder extends Configurable {
         enchantments.forEach((k, v) -> itemMeta.addEnchant(k, v, true));
         itemMeta.addItemFlags(flags.toArray(ItemFlag[]::new));
 
-        if(glow && itemMeta.getEnchants().isEmpty()) {
-            itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
+        if(glow && !itemMeta.getEnchants().isEmpty()) {
+            itemMeta.addEnchant(UNBREAKING, 1, true);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
+
+        attributes.values().forEach(entry -> {
+            Attribute key = entry.getKey();
+            itemMeta.addAttributeModifier(key, entry.getValue());
+        });
 
         itemStack.setItemMeta(itemMeta);
         return itemStack;

@@ -174,7 +174,7 @@ public class SuperConfig {
     }
 
     @Nullable
-    public List<?> getStringList(@NotNull String path) {
+    public List<String> getStringList(@NotNull String path) {
         return configuration.getStringList(path);
     }
 

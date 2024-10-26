@@ -24,6 +24,17 @@ public class BukkitNBT implements NBT {
     }
 
     @Override
+    public @NotNull NamespacedKey getKey(@NotNull String key) {
+        NamespacedKey namespacedKey = CACHE.get(key);
+        if(namespacedKey == null) {
+            namespacedKey = new NamespacedKey(plugin, key);
+            CACHE.put(key, namespacedKey);
+        }
+
+        return namespacedKey;
+    }
+
+    @Override
     public <P, C> void set(@NotNull PersistentDataHolder dataHolder, @NotNull PersistentDataType<P, C> type, @NotNull String key, @NotNull C value) {
         NamespacedKey namespacedKey = CACHE.get(key);
         if(namespacedKey == null) {

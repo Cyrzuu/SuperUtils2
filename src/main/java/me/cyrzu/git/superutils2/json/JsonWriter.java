@@ -105,8 +105,14 @@ public class JsonWriter {
                     .set("min", bound.getMinVector())
                     .set("max", bound.getMaxVector())
                     .getCopy());
-        }
-        else {
+        } else if (value instanceof Collection<?> collection) {
+            temp.add(key, JsonWriter.createArray(collection, ((array, o) -> {
+                if(o instanceof Number number) array.add(number);
+                else if(o instanceof Boolean bool) array.add(bool);
+                else array.add(o.toString());
+            })));
+
+        } else {
             temp.addProperty(key, value.toString());
         }
     }
