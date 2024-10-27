@@ -1,5 +1,7 @@
 package me.cyrzu.git.superutils2.config;
 
+import com.google.common.base.Charsets;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import me.cyrzu.git.superutils2.color.ColorUtils;
 import me.cyrzu.git.superutils2.config.items.ItemFiles;
@@ -18,6 +20,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,7 +33,16 @@ public class SuperConfig {
     private final static Pattern ITEM_PATTERN = Pattern.compile("item:.*");
 
     @NotNull
+    private final Plugin plugin;
+
+    @NotNull
     private final File file;
+
+    @Nullable
+    private final String resource;
+
+    @Getter
+    private @Nullable FileConfiguration resourceConfig = new YamlConfiguration();
 
     @NotNull
     private FileConfiguration configuration;
@@ -41,6 +54,7 @@ public class SuperConfig {
     private final Map<String, Object> configData = new ConcurrentHashMap<>();
 
     public SuperConfig(@NotNull Plugin plugin, @NotNull String resource) {
+        this.plugin = plugin;
         resource = resource.endsWith(".yml") ? resource : (resource + ".yml");
 
         this.file = new File(plugin.getDataFolder(), resource);
@@ -48,6 +62,7 @@ public class SuperConfig {
             plugin.saveResource(resource, false);
         }
 
+        this.resource = resource;
         this.configuration = YamlConfiguration.loadConfiguration(file);
         this.itemFiles = ItemFiles.getInstance(plugin);
 
@@ -55,11 +70,13 @@ public class SuperConfig {
     }
 
     public SuperConfig(@NotNull Plugin plugin, @NotNull File file) {
+        this.plugin = plugin;
         this.file = file;
         FileUtils.createFile(file);
 
         this.configuration = YamlConfiguration.loadConfiguration(file);
         this.itemFiles = ItemFiles.getInstance(plugin);
+        this.resource = null;
 
         this.reloadConfig();
     }
@@ -218,6 +235,38 @@ public class SuperConfig {
     private void reloadConfig() {
         configData.clear();
         this.loadSection(this.configuration, "");
+
+        InputStream resourceStream = resource != null ? plugin.getResource(resource) : null;
+        if(resourceStream == null) {
+            resourceConfig = new YamlConfiguration();
+        } else {
+            InputStreamReader resourceReader = new InputStreamReader(resourceStream, Charsets.UTF_8);
+            resourceConfig = YamlConfiguration.loadConfiguration(resourceReader);
+        }
+
+        this.saveResource(this.configuration, this.resourceConfig, "");
+    }
+
+    private void saveResource(@NotNull ConfigurationSection config, @NotNull ConfigurationSection resourceConfig, @NotNull String path) {
+        for (String key : resourceConfig.getKeys(false)) {
+            String newPath = path.isEmpty() ? key : path + "." + key;
+            Object object = resourceConfig.get(key);
+            if(object == null) {
+                continue;
+            }
+
+            if(object instanceof ConfigurationSection resourceSection) {
+                ConfigurationSection configSection = config.getConfigurationSection(key);
+                configSection = configSection == null ? config.createSection(key) : configSection;
+
+                this.saveResource(configSection, resourceSection, newPath);
+                continue;
+            }
+
+            if(!config.isSet(key)) {
+                config.set(key, object);
+            }
+        }
     }
 
     private void loadSection(@NotNull ConfigurationSection section, @NotNull String path) {
@@ -278,6 +327,11 @@ public class SuperConfig {
             ConfigEntry annotation = declaredField.getAnnotation(ConfigEntry.class);
             String path = annotation.value();
 
+            String fileName = annotation.file();
+            if(!fileName.isBlank() && !fileName.equals(file.getName())) {
+                continue;
+            }
+
             if (declaredField.getType().equals(String.class)) {
                 declaredField.set(object, ColorUtils.parseText(configuration.getString(path, (String) declaredField.get(object))));
             }
@@ -316,6 +370,14 @@ public class SuperConfig {
 
                 StackBuilder stackBuilder = StackBuilder.parseString(string);
                 declaredField.set(object, declaredField.getType().equals(ItemStack.class) ? stackBuilder.build() : stackBuilder);
+            }
+
+            else if(declaredField.getType().equals(Pattern.class)) {
+                String string = configuration.getString(path, "");
+                try {
+                    Pattern compile = Pattern.compile(string);
+                    declaredField.set(object, compile);
+                } catch (Exception ignored) { }
             }
 
             else if(declaredField.get(object) instanceof Configurable) {

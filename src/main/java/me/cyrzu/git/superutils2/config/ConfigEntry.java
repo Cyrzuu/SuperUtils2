@@ -11,4 +11,6 @@ public @interface ConfigEntry {
 
     String value();
 
+    String file() default "";
+
 }
