@@ -41,11 +41,6 @@
             <version>RELEASE</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>bson</artifactId>
-            <version>5.1.0</version>
-        </dependency>
     </dependencies>
 
 </project>
