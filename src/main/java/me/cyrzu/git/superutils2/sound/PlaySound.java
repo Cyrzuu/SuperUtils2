@@ -53,7 +53,7 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
         sound = sound.trim().replace(" ", "_");
         String[] split = sound.split(":");
         Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
-        this.sound = anEnum != null ? "%s:%s".formatted(anEnum.name().toLowerCase(), anEnum.getKey().getKey()) : split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
+        this.sound = anEnum != null ? "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.name().toLowerCase()) : split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
     }
 
     public PlaySound(@NotNull String sound, @NotNull Number volume, @NotNull Number pitch, @Nullable String id) {
