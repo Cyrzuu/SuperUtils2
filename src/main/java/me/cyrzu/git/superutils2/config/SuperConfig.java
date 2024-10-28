@@ -346,28 +346,46 @@ public class SuperConfig {
                 declaredField.set(object, ColorUtils.parseText(configuration.getString(path, (String) declaredField.get(object))));
             }
 
-            else if (declaredField.getType().equals(Integer.class) || declaredField.getType().equals(int.class)) {
+            else if (declaredField.getType().equals(Integer.class)) {
+                Integer value = configuration.getInt(path, (Integer) declaredField.get(object));
+                declaredField.set(object, value);
+            } else if (declaredField.getType().equals(int.class)) {
                 declaredField.set(object, configuration.getInt(path, declaredField.getInt(object)));
             }
 
-            else if(declaredField.getType().equals(Boolean.class) || declaredField.getType().equals(boolean.class)) {
+            else if (declaredField.getType().equals(Boolean.class)) {
+                Boolean value = configuration.getBoolean(path, (Boolean) declaredField.get(object));
+                declaredField.set(object, value);
+            } else if (declaredField.getType().equals(boolean.class)) {
                 declaredField.set(object, configuration.getBoolean(path, declaredField.getBoolean(object)));
             }
 
-            else if(declaredField.getType().equals(Double.class) || declaredField.getType().equals(double.class)) {
+            else if (declaredField.getType().equals(Double.class)) {
+                Double value = configuration.getDouble(path, (Double) declaredField.get(object));
+                declaredField.set(object, value);
+            } else if (declaredField.getType().equals(double.class)) {
                 declaredField.set(object, configuration.getDouble(path, declaredField.getDouble(object)));
             }
 
-            else if(declaredField.getType().equals(Long.class) || declaredField.getType().equals(long.class)) {
+            else if (declaredField.getType().equals(Long.class)) {
+                Long value = configuration.getLong(path, (Long) declaredField.get(object));
+                declaredField.set(object, value);
+            } else if (declaredField.getType().equals(long.class)) {
                 declaredField.set(object, configuration.getLong(path, declaredField.getLong(object)));
             }
 
-            else if(declaredField.getType().equals(Short.class) || declaredField.getType().equals(short.class)) {
-                declaredField.set(object, configuration.getLong(path, declaredField.getLong(object)));
+            else if (declaredField.getType().equals(Short.class)) {
+                Short value = (short) configuration.getInt(path, (Short) declaredField.get(object));
+                declaredField.set(object, value);
+            } else if (declaredField.getType().equals(short.class)) {
+                declaredField.set(object, (short) configuration.getInt(path, declaredField.getInt(object)));
             }
 
-            else if(declaredField.getType().equals(Byte.class) || declaredField.getType().equals(byte.class)) {
-                declaredField.set(object, configuration.getLong(path, declaredField.getLong(object)));
+            else if (declaredField.getType().equals(Byte.class)) {
+                Byte value = (byte) configuration.getInt(path, (Byte) declaredField.get(object));
+                declaredField.set(object, value);
+            } else if (declaredField.getType().equals(byte.class)) {
+                declaredField.set(object, (byte) configuration.getInt(path, declaredField.getInt(object)));
             }
 
             else if(declaredField.getType().equals(SimpleDateFormat.class)) {

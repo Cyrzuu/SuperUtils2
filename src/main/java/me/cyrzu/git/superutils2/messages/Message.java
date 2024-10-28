@@ -1,5 +1,6 @@
 package me.cyrzu.git.superutils2.messages;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import me.cyrzu.git.superutils2.collection.CollectionUtils;
 import me.cyrzu.git.superutils2.color.ColorUtils;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 import java.util.Objects;
 
+@AllArgsConstructor
 public class Message extends Configurable {
 
     @NotNull
@@ -110,7 +112,7 @@ public class Message extends Configurable {
         }
 
         String trim = string.trim();
-        this.message = !trim.isEmpty() ? ColorUtils.parseText(trim) : null;
+        this.message = !trim.isEmpty() ? ColorUtils.parseText(trim).replace("\\n", "\n") : null;
     }
 
     public void send(@NotNull CommandSender sender) {

@@ -54,7 +54,7 @@ public class CommandContext {
     }
 
     public int asInt(int index) {
-        return asInt(index, 0);
+        return this.asInt(index, 0);
     }
 
     public int asInt(int index, int def) {
@@ -63,7 +63,7 @@ public class CommandContext {
     }
 
     public boolean isInt(int index) {
-        return asInt(index, Integer.MIN_VALUE) != Integer.MIN_VALUE;
+        return this.asInt(index, Integer.MIN_VALUE) != Integer.MIN_VALUE;
     }
 
     public long asLong(int index) {
@@ -71,31 +71,31 @@ public class CommandContext {
     }
 
     public long asLong(int index, long def) {
-        String value = get(index, null);
+        String value = this.get(index, null);
         return value != null ? NumberUtils.parseLong(value, def) : def;
     }
 
     public boolean isLong(int index) {
-        return asLong(index, Long.MIN_VALUE) != Long.MIN_VALUE;
+        return this.asLong(index, Long.MIN_VALUE) != Long.MIN_VALUE;
     }
 
     public double asDouble(int index) {
-        return asDouble(index, 0);
+        return this.asDouble(index, 0);
     }
 
     public double asDouble(int index, double def) {
-        String value = get(index, null);
+        String value = this.get(index, null);
         return value != null ? NumberUtils.parseDouble(value, def) : def;
     }
 
     public double asDouble(int index, double def, int round) {
-        String value = get(index, null);
+        String value = this.get(index, null);
         double v = value != null ? NumberUtils.parseDouble(value, def) : def;
         return NumberUtils.round(v, round);
     }
 
     public boolean isDouble(int index) {
-        return asDouble(index, Double.MIN_VALUE) != Double.MIN_VALUE;
+        return this.asDouble(index, Double.MIN_VALUE) != Double.MIN_VALUE;
     }
 
     public boolean asBoolean(int index) {
@@ -103,18 +103,18 @@ public class CommandContext {
     }
 
     public boolean asBoolean(int index, boolean def) {
-        String value = get(index, null);
+        String value = this.get(index, null);
         return value != null ? Boolean.parseBoolean(value) : def;
     }
 
     public boolean isBoolean(int index) {
-        String value = get(index, "").toLowerCase();
+        String value = this.get(index, "").toLowerCase();
         return value.equals("true") || value.equals("false");
     }
 
     @Nullable
     public Player asPlayer(int index) {
-        return asPlayer(index, null);
+        return this.asPlayer(index, null);
     }
 
     @Nullable
@@ -126,16 +126,16 @@ public class CommandContext {
         }
 
         Player player = Bukkit.getPlayer(value);
-        return player != null ? player : def;
+        return player != null && player.getName().equalsIgnoreCase(value) ? player : def;
     }
 
     public boolean isPlayer(int index) {
-        return asPlayer(index) != null;
+        return this.asPlayer(index) != null;
     }
 
     @Nullable
     public OfflinePlayer asOfflinePlayer(int index) {
-        return asOfflinePlayer(index, null);
+        return this.asOfflinePlayer(index, null);
     }
 
     @Nullable
@@ -150,17 +150,17 @@ public class CommandContext {
     }
 
     public boolean isOfflinePlayer(int index) {
-        return asOfflinePlayer(index) != null;
+        return this.asOfflinePlayer(index) != null;
     }
 
     @Nullable
-    public <T extends Enum<T>> T getEnum(int index, @NotNull Class<T> clazz) {
-        return getEnum(index, clazz, null);
+    public <T extends Enum<T>> T asEnum(int index, @NotNull Class<T> clazz) {
+        return this.asEnum(index, clazz, null);
     }
 
     @Nullable
     @Contract("_, _, !null -> !null")
-    public <T extends Enum<T>> T getEnum(int index, @NotNull Class<T> clazz, @Nullable T def) {
+    public <T extends Enum<T>> T asEnum(int index, @NotNull Class<T> clazz, @Nullable T def) {
         try {
             return Enum.valueOf(clazz, this.args[index].toUpperCase());
         } catch (final Exception exception) {
@@ -169,7 +169,7 @@ public class CommandContext {
     }
 
     public <T extends Enum<T>> boolean isEnum(final int index, final Class<T> clazz) {
-        return this.getEnum(index, clazz) != null;
+        return this.asEnum(index, clazz) != null;
     }
 
     @NotNull
