@@ -8,6 +8,7 @@ import me.cyrzu.git.superutils2.config.items.ItemFiles;
 import me.cyrzu.git.superutils2.config.items.JsonItem;
 import me.cyrzu.git.superutils2.item.StackBuilder;
 import me.cyrzu.git.superutils2.messages.Message;
+import me.cyrzu.git.superutils2.utils.ConfigUtils;
 import me.cyrzu.git.superutils2.utils.FileUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -242,9 +243,11 @@ public class SuperConfig {
         } else {
             InputStreamReader resourceReader = new InputStreamReader(resourceStream, Charsets.UTF_8);
             resourceConfig = YamlConfiguration.loadConfiguration(resourceReader);
+
+            this.saveResource(this.configuration, this.resourceConfig, "");
+            ConfigUtils.save(this.configuration, this.file);
         }
 
-        this.saveResource(this.configuration, this.resourceConfig, "");
     }
 
     private void saveResource(@NotNull ConfigurationSection config, @NotNull ConfigurationSection resourceConfig, @NotNull String path) {
