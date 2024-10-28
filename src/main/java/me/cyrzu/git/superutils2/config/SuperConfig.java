@@ -10,6 +10,7 @@ import me.cyrzu.git.superutils2.item.StackBuilder;
 import me.cyrzu.git.superutils2.messages.Message;
 import me.cyrzu.git.superutils2.utils.ConfigUtils;
 import me.cyrzu.git.superutils2.utils.FileUtils;
+import me.cyrzu.git.superutils2.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.FileConfigurationOptions;
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -344,20 +346,38 @@ public class SuperConfig {
                 declaredField.set(object, ColorUtils.parseText(configuration.getString(path, (String) declaredField.get(object))));
             }
 
-            else if (declaredField.getType().equals(Integer.class)) {
+            else if (declaredField.getType().equals(Integer.class) || declaredField.getType().equals(int.class)) {
                 declaredField.set(object, configuration.getInt(path, declaredField.getInt(object)));
             }
 
-            else if(declaredField.getType().equals(Boolean.class)) {
+            else if(declaredField.getType().equals(Boolean.class) || declaredField.getType().equals(boolean.class)) {
                 declaredField.set(object, configuration.getBoolean(path, declaredField.getBoolean(object)));
             }
 
-            else if(declaredField.getType().equals(Double.class)) {
+            else if(declaredField.getType().equals(Double.class) || declaredField.getType().equals(double.class)) {
                 declaredField.set(object, configuration.getDouble(path, declaredField.getDouble(object)));
             }
 
-            else if(declaredField.getType().equals(Long.class)) {
+            else if(declaredField.getType().equals(Long.class) || declaredField.getType().equals(long.class)) {
                 declaredField.set(object, configuration.getLong(path, declaredField.getLong(object)));
+            }
+
+            else if(declaredField.getType().equals(Short.class) || declaredField.getType().equals(short.class)) {
+                declaredField.set(object, configuration.getLong(path, declaredField.getLong(object)));
+            }
+
+            else if(declaredField.getType().equals(Byte.class) || declaredField.getType().equals(byte.class)) {
+                declaredField.set(object, configuration.getLong(path, declaredField.getLong(object)));
+            }
+
+            else if(declaredField.getType().equals(SimpleDateFormat.class)) {
+                String string = configuration.getString(path);
+                declaredField.set(object, string != null ? new SimpleDateFormat(string) : declaredField.get(object));
+            }
+
+            else if(declaredField.getType().equals(UUID.class)) {
+                UUID uuid = StringUtils.toUUID(configuration.getString(path));
+                declaredField.set(object, uuid != null ? uuid : declaredField.get(object));
             }
 
             else if(declaredField.getType().equals(ItemStack.class) || declaredField.getType().equals(StackBuilder.class)) {
