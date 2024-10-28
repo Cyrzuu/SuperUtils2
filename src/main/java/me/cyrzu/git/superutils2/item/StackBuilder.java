@@ -30,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URL;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -274,8 +275,26 @@ public class StackBuilder extends Configurable {
     }
 
     @NotNull
-    public StackBuilder addLore(String @NotNull ... lores) {
-        lore.addAll(Arrays.stream(lores).map(ColorUtils::parseText).toList());
+    public StackBuilder addLore(String @NotNull ... lore) {
+        this.lore.addAll(Arrays.stream(lore).map(ColorUtils::parseText).toList());
+        return this;
+    }
+
+    @NotNull
+    public StackBuilder addLore(int index, String @NotNull ... lore) {
+        this.lore.addAll(index, Arrays.stream(lore).map(ColorUtils::parseText).toList());
+        return this;
+    }
+
+    @NotNull
+    public StackBuilder addLore(@NotNull Collection<String> lore) {
+        this.lore.addAll(lore.stream().map(ColorUtils::parseText).toList());
+        return this;
+    }
+
+    @NotNull
+    public StackBuilder addLore(int index, @NotNull Collection<String> lore) {
+        this.lore.addAll(index, lore.stream().map(ColorUtils::parseText).toList());
         return this;
     }
 
@@ -287,9 +306,24 @@ public class StackBuilder extends Configurable {
     }
 
     @NotNull
+    public StackBuilder setLore(@NotNull Collection<String> lore) {
+        this.clearLore();
+        lore.addAll(lore.stream().map(ColorUtils::parseText).toList());
+        return this;
+    }
+
+    public void removeLoreIf(@NotNull Predicate<String> filter) {
+        lore.removeIf(filter);
+    }
+
+    @NotNull
     public StackBuilder clearLore() {
         lore.clear();
         return this;
+    }
+
+    public int loreSize() {
+        return lore.size();
     }
 
     @NotNull
