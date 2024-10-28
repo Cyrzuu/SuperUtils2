@@ -39,26 +39,22 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
     }
 
     public PlaySound(@NotNull Sound sound, @NotNull Number volume, @NotNull Number pitch, @Nullable String id) {
-        this("%s:%s".formatted(sound.getKey().getNamespace(), sound.getKey().getKey()), volume, pitch, id);
+        this("%s:%s".formatted(sound.getKey().getNamespace(), sound.name().toLowerCase()), volume, pitch, id);
     }
 
     public PlaySound(@NotNull String sound, @NotNull Number volume, @NotNull Number pitch) {
         this(sound, volume, pitch, null);
     }
 
-    public PlaySound(@NotNull String sound, float volume, float pitch) {
-        this.volume = volume;
-        this.pitch = pitch;
-
-        sound = sound.trim().replace(" ", "_");
-        String[] split = sound.split(":");
-        Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
-        this.sound = anEnum != null ? "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.name().toLowerCase()) : split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
-    }
-
     public PlaySound(@NotNull String sound, @NotNull Number volume, @NotNull Number pitch, @Nullable String id) {
         this(sound, volume.floatValue(), pitch.floatValue());
         Optional.ofNullable(id).ifPresent(value -> PlaySound.REGISTERED.put(id.toLowerCase(), this));
+    }
+
+    public PlaySound(@NotNull String sound, float volume, float pitch) {
+        this.sound = PlaySound.formatSound(sound);
+        this.volume = volume;
+        this.pitch = pitch;
     }
 
     public void play(@NotNull Player player) {
@@ -88,6 +84,15 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
     @Nullable
     public static PlaySound getRegistered(@Nullable String soundName) {
         return soundName != null ? REGISTERED.get(soundName.toLowerCase(Locale.ROOT)) : null;
+    }
+
+    private static String formatSound(@NotNull String sound) {
+        sound = sound.trim().replace(" ", "_");
+        String[] split = sound.split(":");
+        Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
+        return anEnum != null ?
+                "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.name().toLowerCase()) :
+                split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
     }
 
 }

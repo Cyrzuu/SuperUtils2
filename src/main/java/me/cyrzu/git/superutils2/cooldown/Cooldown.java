@@ -57,8 +57,8 @@ public class Cooldown<T> {
         return false;
     }
 
-    public void addCooldown(@NotNull T value, int time, @NotNull TimeUnit unit) {
-        this.addCooldown(value, Duration.ofMillis(unit.toMillis(time)));
+    public void addCooldown(@NotNull T value, @NotNull Number number, @NotNull TimeUnit unit) {
+        this.addCooldown(value, Duration.ofMillis(unit.toMillis(number.longValue())));
     }
 
     public void addCooldown(@NotNull T value, @NotNull Duration duration) {

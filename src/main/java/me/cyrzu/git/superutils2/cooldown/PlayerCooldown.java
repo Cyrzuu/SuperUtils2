@@ -26,11 +26,19 @@ public class PlayerCooldown extends Cooldown<UUID> {
         return this.getRemainingCooldown(player.getUniqueId());
     }
 
-    public boolean checkAndSetCooldown(@NotNull OfflinePlayer player, Number time, @NotNull TimeUnit unit) {
+    public boolean checkAndSetCooldown(@NotNull OfflinePlayer player, @NotNull Duration duration) {
+        return this.checkAndSetCooldown(player.getUniqueId(), duration);
+    }
+
+    public boolean checkAndSetCooldown(@NotNull OfflinePlayer player, @NotNull Number time, @NotNull TimeUnit unit) {
         return this.checkAndSetCooldown(player.getUniqueId(), time, unit);
     }
 
-    public void addCooldown(@NotNull OfflinePlayer player, int time, @NotNull TimeUnit unit) {
+    public void addCooldown(@NotNull OfflinePlayer player, @NotNull Duration duration) {
+        this.addCooldown(player.getUniqueId(), duration);
+    }
+
+    public void addCooldown(@NotNull OfflinePlayer player, @NotNull Number time, @NotNull TimeUnit unit) {
         this.addCooldown(player.getUniqueId(), time, unit);
     }
 
