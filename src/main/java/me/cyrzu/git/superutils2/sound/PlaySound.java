@@ -39,7 +39,8 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
     }
 
     public PlaySound(@NotNull Sound sound, @NotNull Number volume, @NotNull Number pitch, @Nullable String id) {
-        this("%s:%s".formatted(sound.getKey().getNamespace(), sound.name().toLowerCase()), volume, pitch, id);
+        this("%s:%s".formatted(sound.getKey().getNamespace(), sound.getKey().getKey()), volume.floatValue(), pitch.floatValue());
+        Optional.ofNullable(id).ifPresent(value -> PlaySound.REGISTERED.put(id.toLowerCase(), this));
     }
 
     public PlaySound(@NotNull String sound, @NotNull Number volume, @NotNull Number pitch) {
@@ -92,7 +93,7 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
         Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
         return anEnum != null ?
                 "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.getKey().getKey()) :
-                split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1].replace("_", "."));
+                split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
     }
 
 }
