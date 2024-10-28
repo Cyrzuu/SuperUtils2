@@ -9,15 +9,14 @@ import me.cyrzu.git.superutils2.config.items.JsonItem;
 import me.cyrzu.git.superutils2.item.StackBuilder;
 import me.cyrzu.git.superutils2.messages.Message;
 import me.cyrzu.git.superutils2.utils.ConfigUtils;
+import me.cyrzu.git.superutils2.utils.DurationUtils;
 import me.cyrzu.git.superutils2.utils.FileUtils;
 import me.cyrzu.git.superutils2.utils.StringUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.FileConfigurationOptions;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -27,6 +26,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.*;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
@@ -378,6 +378,11 @@ public class SuperConfig {
             else if(declaredField.getType().equals(UUID.class)) {
                 UUID uuid = StringUtils.toUUID(configuration.getString(path));
                 declaredField.set(object, uuid != null ? uuid : declaredField.get(object));
+            }
+
+            else if(declaredField.getType().equals(Duration.class)) {
+                String string = configuration.getString(path);
+                declaredField.set(object, string != null ? DurationUtils.formatToDuration(string) : declaredField.get(object));
             }
 
             else if(declaredField.getType().equals(ItemStack.class) || declaredField.getType().equals(StackBuilder.class)) {
