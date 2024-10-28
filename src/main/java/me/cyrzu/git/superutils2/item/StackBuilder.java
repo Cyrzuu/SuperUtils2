@@ -46,6 +46,7 @@ public class StackBuilder extends Configurable {
     @NotNull
     private final Material material;
 
+    @Getter
     @Nullable
     private String displayName;
 
@@ -79,22 +80,26 @@ public class StackBuilder extends Configurable {
     @NotNull
     private final Set<ItemFlag> flags = new HashSet<>();
 
+    @Getter
     @Nullable
     private PlayerProfile headTexture;
 
+    @Getter
     @Nullable
     private Rarity rarity;
 
     @NotNull
     private final Map<NamespacedKey, String> persistentData = new HashMap<>();
 
+    @Getter
     @Nullable
     private Boolean hideToolTip;
 
+    @Getter
     private boolean glow;
 
     @NotNull
-    private Map<NamespacedKey, Map.Entry<Attribute, AttributeModifier>> attributes = new HashMap<>();
+    private final Map<NamespacedKey, Map.Entry<Attribute, AttributeModifier>> attributes = new HashMap<>();
 
     public StackBuilder(@NotNull Material material) {
         this(material, 1);
@@ -425,6 +430,26 @@ public class StackBuilder extends Configurable {
     public StackBuilder setGlow(boolean glow) {
         this.glow = glow;
         return this;
+    }
+
+    @NotNull
+    public List<String> getLore() {
+        return new ArrayList<>(lore);
+    }
+
+    @NotNull
+    public Map<Enchantment, Integer> getEnchantments() {
+        return Map.copyOf(enchantments);
+    }
+
+    @NotNull
+    public Set<ItemFlag> getFlags() {
+        return Set.copyOf(flags);
+    }
+
+    @NotNull
+    public Map<NamespacedKey, Map.Entry<Attribute, AttributeModifier>> getAttributes() {
+        return Map.copyOf(attributes);
     }
 
     @NotNull
