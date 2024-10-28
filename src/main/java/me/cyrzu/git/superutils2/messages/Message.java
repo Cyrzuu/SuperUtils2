@@ -66,6 +66,10 @@ public class Message extends Configurable {
                     double pitch = NumberUtils.parseDouble(CollectionUtils.getFirstPresemt("1.0", soundMap, "pitch", "p", "pit"));
                     this.playSound = new PlaySound(sound, volume, pitch);
                 }
+                case "playsound","ps" -> {
+                    PlaySound registered = PlaySound.getRegistered(value);
+                    this.playSound = registered != null ? registered : PlaySound.getRegistered(value.toUpperCase());
+                }
                 case "title","t" -> this.title = new Title(StringUtils.parseKeyValue(value));
                 case "actionbar","actionmessage","ab","am" -> {
                     Map<String, String> actionBarMap = StringUtils.parseKeyValue(value);
@@ -89,6 +93,10 @@ public class Message extends Configurable {
                 case "title", "t" -> {
                     String[] split = value.split("(\n|\\\\n)", 2);
                     this.title = split.length == 1 ? new Title(split[0], "") : new Title(split[0], split[1]);
+                }
+                case "playsound","ps" -> {
+                    PlaySound registered = PlaySound.getRegistered(value);
+                    this.playSound = registered != null ? registered : PlaySound.getRegistered(value.toUpperCase());
                 }
                 default -> {
                     continue;

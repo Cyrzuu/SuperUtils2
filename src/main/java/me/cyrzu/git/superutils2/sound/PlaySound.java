@@ -1,5 +1,6 @@
 package me.cyrzu.git.superutils2.sound;
 
+import me.cyrzu.git.superutils2.utils.EnumUtils;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -8,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public record PlaySound(@NotNull String sound, float volume, float pitch) {
 
@@ -44,12 +46,19 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
         this(sound, volume, pitch, null);
     }
 
+    public PlaySound(@NotNull String sound, float volume, float pitch) {
+        this.volume = volume;
+        this.pitch = pitch;
+
+        sound = sound.trim().replace(" ", "_");
+        String[] split = sound.split(":");
+        Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
+        this.sound = anEnum != null ? "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.getKey().getKey()) : split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
+    }
+
     public PlaySound(@NotNull String sound, @NotNull Number volume, @NotNull Number pitch, @Nullable String id) {
         this(sound, volume.floatValue(), pitch.floatValue());
-
-        if(id != null) {
-            PlaySound.REGISTERED.put(id.toLowerCase(Locale.ROOT), this);
-        }
+        Optional.ofNullable(id).ifPresent(value -> PlaySound.REGISTERED.put(id.toLowerCase(), this));
     }
 
     public void play(@NotNull Player player) {

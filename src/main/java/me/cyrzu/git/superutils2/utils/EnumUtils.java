@@ -10,7 +10,7 @@ public class EnumUtils {
 
     @Nullable
     public <T extends Enum<T>> T getEnum(@NotNull String value, final Class<T> clazz) {
-        return getEnum(value, clazz, null);
+        return EnumUtils.getEnum(value, clazz, null);
     }
 
     @Nullable

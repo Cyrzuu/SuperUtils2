@@ -12,6 +12,7 @@ import me.cyrzu.git.superutils2.utils.ConfigUtils;
 import me.cyrzu.git.superutils2.utils.FileUtils;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.FileConfigurationOptions;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -46,7 +47,7 @@ public class SuperConfig {
     private @Nullable FileConfiguration resourceConfig = new YamlConfiguration();
 
     @NotNull
-    private FileConfiguration configuration;
+    private YamlConfiguration configuration;
 
     @NotNull
     private final ItemFiles itemFiles;
@@ -65,6 +66,7 @@ public class SuperConfig {
 
         this.resource = resource;
         this.configuration = YamlConfiguration.loadConfiguration(file);
+        configuration.options().width(512);
         this.itemFiles = ItemFiles.getInstance(plugin);
 
         this.reloadConfig();
@@ -76,14 +78,17 @@ public class SuperConfig {
         FileUtils.createFile(file);
 
         this.configuration = YamlConfiguration.loadConfiguration(file);
+        configuration.options().width(512);
         this.itemFiles = ItemFiles.getInstance(plugin);
         this.resource = null;
+
 
         this.reloadConfig();
     }
 
     public void reload() {
         this.configuration = YamlConfiguration.loadConfiguration(file);
+        configuration.options().width(512);
         itemFiles.load();
         this.reloadConfig();
     }
