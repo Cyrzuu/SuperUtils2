@@ -1,6 +1,11 @@
 package me.cyrzu.git.superutils2.item;
 
+import com.mojang.datafixers.DSL;
+import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import me.cyrzu.git.superutils2.helper.Version;
+import me.cyrzu.git.superutils2.messages.MessageUtils;
 import me.cyrzu.git.superutils2.utils.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
@@ -31,6 +36,18 @@ public class ItemCompress {
     private static final Method NBT_IO_WRITE = ReflectionUtils.getMethod(NBT_IO_CLASS, "a", COMPOUND_TAG_CLASS, DataOutput.class);
     private static final Method NBT_IO_READ  = ReflectionUtils.getMethod(NBT_IO_CLASS, "a", DataInput.class);
 
+    private static final Class<?> DATA_FIXERS_CLASS = ReflectionUtils.getClass("net.minecraft.util.datafix", "DataConverterRegistry"); // DataFixers
+    private static final Method GET_DATA_FIXER = ReflectionUtils.getMethod(DATA_FIXERS_CLASS, "a");
+    private static final Class<?> NBT_OPS_CLASS = ReflectionUtils.getClass("net.minecraft.nbt", "DynamicOpsNBT"); // NbtOps
+    private static final Class<?> REFERENCES_CLASS = ReflectionUtils.getClass("net.minecraft.util.datafix.fixes", "DataConverterTypes"); // References
+
+    private static final int DATA_FIXER_SOURCE_VERSION = 3700; // 1.20.4
+    private static final int DATA_FXIER_TARGET_VERSION = 3953; // 1.21
+
+    private static DataFixer DATA_FIXER;
+    private static Object NBT_OPS_INSTANCE;
+    private static Object REFERENCE_ITEM_STACK;
+
     // For 1.20.6+
     private static Method MINECRAFT_SERVER_REGISTRY_ACCESS;
     private static Method ITEM_STACK_PARSE_OPTIONAL;
@@ -42,9 +59,19 @@ public class ItemCompress {
     private static Method         NMS_SAVE;
 
     static {
+        if (GET_DATA_FIXER != null) {
+            DATA_FIXER = (DataFixer) ReflectionUtils.invokeMethod(GET_DATA_FIXER, DATA_FIXERS_CLASS);
+        }
+        if (NBT_OPS_CLASS != null) {
+            NBT_OPS_INSTANCE = ReflectionUtils.getFieldValue(NBT_OPS_CLASS, "a");
+        }
+        if (REFERENCES_CLASS != null) {
+            REFERENCE_ITEM_STACK = ReflectionUtils.getFieldValue(REFERENCES_CLASS, "t");
+        }
+
         if (Version.isAtLeast(Version.v1_20_R4)) {
             Class<?> minecraftServerClass = ReflectionUtils.getClass("net.minecraft.server", "MinecraftServer");
-            Class<?> holderLookupProviderClass = ReflectionUtils.getInnerClass("net.minecraft.core.HolderLookup", "a");
+            Class<?> holderLookupProviderClass = ReflectionUtils.getInnerClass("net.minecraft.core.HolderLookup", "a"); // Provider
 
             MINECRAFT_SERVER_REGISTRY_ACCESS = ReflectionUtils.getMethod(minecraftServerClass, "bc");
             ITEM_STACK_PARSE_OPTIONAL = ReflectionUtils.getMethod(ITEM_STACK_CLASS, "a", holderLookupProviderClass, COMPOUND_TAG_CLASS);
@@ -55,21 +82,25 @@ public class ItemCompress {
             NMS_ITEM_OF          = ReflectionUtils.getMethod(ITEM_STACK_CLASS, "a", COMPOUND_TAG_CLASS);
             NMS_SAVE             = ReflectionUtils.getMethod(ITEM_STACK_CLASS, "b", COMPOUND_TAG_CLASS);
         }
-
-        ItemCompress.setup();
     }
 
     private static boolean useRegistry;
     private static Object registryAccess;
 
-    private static boolean setup() {
+    public static boolean setup() {
         if (!Version.isAtLeast(Version.v1_20_R4)) return true;
 
         useRegistry = true;
 
         Class<?> craftServerClass = ReflectionUtils.getClass(Version.CRAFTBUKKIT_PACKAGE, "CraftServer");
+        if (craftServerClass == null) {
+            MessageUtils.sendWarning(Bukkit.getConsoleSender(), "Could not find 'CraftServer' class in craftbukkit package: '" + Version.CRAFTBUKKIT_PACKAGE + "'.");
+            return false;
+        }
+
         Method getServer = ReflectionUtils.getMethod(craftServerClass, "getServer");
         if (getServer == null || MINECRAFT_SERVER_REGISTRY_ACCESS == null) {
+            MessageUtils.sendWarning(Bukkit.getConsoleSender(), "Could not find proper class(es) for ItemStack compression util.");
             return false;
         }
 
@@ -111,7 +142,7 @@ public class ItemCompress {
 
             NBT_IO_WRITE.invoke(null, compoundTag, dataOutput);
 
-            return new BigInteger(1, outputStream.toByteArray()).toString(36);
+            return new BigInteger(1, outputStream.toByteArray()).toString(32);
         }
         catch (ReflectiveOperationException exception) {
             exception.printStackTrace();
@@ -120,19 +151,21 @@ public class ItemCompress {
     }
 
     @Nullable
-    public static ItemStack decompress(@Nullable String compressed) {
-        if (compressed == null || compressed.isEmpty()) {
-            return null;
-        }
-
+    public static ItemStack decompress(@NotNull String compressed) {
         if (NBT_IO_READ == null || CRAFT_ITEM_STACK_AS_BUKKIT_COPY == null) {
             throw new UnsupportedOperationException("Unsupported server version!");
         }
 
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(compressed, 36).toByteArray());
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(compressed, 32).toByteArray());
         try {
             Object compoundTag = NBT_IO_READ.invoke(null, new DataInputStream(inputStream));
             Object itemStack;
+
+            if (Version.isAtLeast(Version.v1_20_R4)) {
+                @SuppressWarnings({"rawtypes", "unchecked"})
+                Dynamic<?> dynamic = new Dynamic<>((DynamicOps) NBT_OPS_INSTANCE, compoundTag);
+                compoundTag = DATA_FIXER.update((DSL.TypeReference) REFERENCE_ITEM_STACK, dynamic, DATA_FIXER_SOURCE_VERSION, DATA_FXIER_TARGET_VERSION).getValue();
+            }
 
             if (useRegistry) {
                 if (ITEM_STACK_PARSE_OPTIONAL == null) return null;
@@ -148,6 +181,7 @@ public class ItemCompress {
             return (ItemStack) CRAFT_ITEM_STACK_AS_BUKKIT_COPY.invoke(null, itemStack);
         }
         catch (ReflectiveOperationException exception) {
+            exception.printStackTrace();
             return null;
         }
     }
@@ -166,4 +200,5 @@ public class ItemCompress {
         List<ItemStack> items = list.stream().map(ItemCompress::decompress).filter(Objects::nonNull).toList();
         return items.toArray(new ItemStack[list.size()]);
     }
+
 }

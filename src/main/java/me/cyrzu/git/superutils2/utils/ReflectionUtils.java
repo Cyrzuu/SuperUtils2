@@ -12,31 +12,36 @@ import java.lang.reflect.Method;
 @UtilityClass
 public class ReflectionUtils {
 
+    @Nullable
     public static Class<?> getClass(@NotNull String path, @NotNull String name) {
-        return getClass(path + "." + name);
+        return ReflectionUtils.getClass(path + "." + name);
     }
 
+    @Nullable
     public static Class<?> getInnerClass(@NotNull String path, @NotNull String name) {
-        return getClass(path + "$" + name);
+        return ReflectionUtils.getClass(path + "$" + name);
     }
 
-    @NotNull
+    @Nullable
     private static Class<?> getClass(@NotNull String path) {
         try {
             return Class.forName(path);
         } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
-    @NotNull
-    public static Constructor<?> getConstructor(@NotNull Class<?> clazz, Class<?>... types) {
+    @Nullable
+    public static Constructor<?> getConstructor(@Nullable Class<?> clazz, Class<?>... types) {
         try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor(types);
-            constructor.setAccessible(true);
+            Constructor<?> constructor = clazz != null ? clazz.getDeclaredConstructor(types) : null;
+            if(clazz != null) {
+                constructor.setAccessible(true);
+            }
+
             return constructor;
         } catch (ReflectiveOperationException e) {
-            throw new RuntimeException(e);
+            return null;
         }
     }
 
@@ -70,9 +75,9 @@ public class ReflectionUtils {
     }
 
     @Nullable
-    public static Method getMethod(@NotNull Class<?> clazz, @NotNull String fieldName, @NotNull Class<?>... o) {
+    public static Method getMethod(@Nullable Class<?> clazz, @NotNull String fieldName, @Nullable Class<?>... o) {
         try {
-            return clazz.getDeclaredMethod(fieldName, o);
+            return clazz != null ? clazz.getDeclaredMethod(fieldName, o) : null;
         } catch (NoSuchMethodException e) {
             Class<?> superClass = clazz.getSuperclass();
             return superClass == null ? null : getMethod(superClass, fieldName);
@@ -95,12 +100,19 @@ public class ReflectionUtils {
 
     @Nullable
     @SuppressWarnings("unchecked")
-    public static <T> T getFieldValue(@NotNull Field field, @NotNull Object object, @NotNull Class<T> clazz) {
+    public static Object getFieldValue(@NotNull Object source, @NotNull String name) {
         try {
-            return (T) field.get(object);
-        } catch (Exception e) {
-            return null;
+            Class<?> clazz = source instanceof Class<?> ? (Class<?>) source : source.getClass();
+            Field field = ReflectionUtils.getField(clazz, name, true);
+            if (field == null) return null;
+
+            field.setAccessible(true);
+            return field.get(source);
         }
+        catch (IllegalAccessException exception) {
+            exception.printStackTrace();
+        }
+        return null;
     }
 
 }
