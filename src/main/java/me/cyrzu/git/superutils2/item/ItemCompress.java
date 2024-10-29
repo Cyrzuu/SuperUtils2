@@ -1,5 +1,9 @@
 package me.cyrzu.git.superutils2.item;
 
+import com.mojang.datafixers.DSL;
+import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import me.cyrzu.git.superutils2.helper.Version;
 import me.cyrzu.git.superutils2.messages.MessageUtils;
 import me.cyrzu.git.superutils2.utils.ReflectionUtils;
@@ -32,17 +36,6 @@ public class ItemCompress {
     private static final Method NBT_IO_WRITE = ReflectionUtils.getMethod(NBT_IO_CLASS, "a", COMPOUND_TAG_CLASS, DataOutput.class);
     private static final Method NBT_IO_READ  = ReflectionUtils.getMethod(NBT_IO_CLASS, "a", DataInput.class);
 
-    private static final Class<?> DATA_FIXERS_CLASS = ReflectionUtils.getClass("net.minecraft.util.datafix", "DataConverterRegistry"); // DataFixers
-    private static final Method GET_DATA_FIXER = ReflectionUtils.getMethod(DATA_FIXERS_CLASS, "a");
-    private static final Class<?> NBT_OPS_CLASS = ReflectionUtils.getClass("net.minecraft.nbt", "DynamicOpsNBT"); // NbtOps
-    private static final Class<?> REFERENCES_CLASS = ReflectionUtils.getClass("net.minecraft.util.datafix.fixes", "DataConverterTypes"); // References
-
-    private static final int DATA_FIXER_SOURCE_VERSION = 3700; // 1.20.4
-    private static final int DATA_FXIER_TARGET_VERSION = 3953; // 1.21
-
-    private static Object NBT_OPS_INSTANCE;
-    private static Object REFERENCE_ITEM_STACK;
-
     // For 1.20.6+
     private static Method MINECRAFT_SERVER_REGISTRY_ACCESS;
     private static Method ITEM_STACK_PARSE_OPTIONAL;
@@ -54,13 +47,6 @@ public class ItemCompress {
     private static Method         NMS_SAVE;
 
     static {
-        if (NBT_OPS_CLASS != null) {
-            NBT_OPS_INSTANCE = ReflectionUtils.getFieldValue(NBT_OPS_CLASS, "a");
-        }
-        if (REFERENCES_CLASS != null) {
-            REFERENCE_ITEM_STACK = ReflectionUtils.getFieldValue(REFERENCES_CLASS, "t");
-        }
-
         if (Version.isAtLeast(Version.v1_20_R4)) {
             Class<?> minecraftServerClass = ReflectionUtils.getClass("net.minecraft.server", "MinecraftServer");
             Class<?> holderLookupProviderClass = ReflectionUtils.getInnerClass("net.minecraft.core.HolderLookup", "a"); // Provider
@@ -74,6 +60,8 @@ public class ItemCompress {
             NMS_ITEM_OF          = ReflectionUtils.getMethod(ITEM_STACK_CLASS, "a", COMPOUND_TAG_CLASS);
             NMS_SAVE             = ReflectionUtils.getMethod(ITEM_STACK_CLASS, "b", COMPOUND_TAG_CLASS);
         }
+
+        ItemCompress.setup();
     }
 
     private static boolean useRegistry;
@@ -122,7 +110,6 @@ public class ItemCompress {
 
             if (useRegistry) {
                 if (ITEM_STACK_SAVE_OPTIONAL == null) return null;
-
                 compoundTag = ITEM_STACK_SAVE_OPTIONAL.invoke(itemStack, registryAccess);
             }
             else {
