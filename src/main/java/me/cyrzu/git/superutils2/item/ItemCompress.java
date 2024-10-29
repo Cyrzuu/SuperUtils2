@@ -1,9 +1,5 @@
 package me.cyrzu.git.superutils2.item;
 
-import com.mojang.datafixers.DSL;
-import com.mojang.datafixers.DataFixer;
-import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.DynamicOps;
 import me.cyrzu.git.superutils2.helper.Version;
 import me.cyrzu.git.superutils2.messages.MessageUtils;
 import me.cyrzu.git.superutils2.utils.ReflectionUtils;
@@ -44,7 +40,6 @@ public class ItemCompress {
     private static final int DATA_FIXER_SOURCE_VERSION = 3700; // 1.20.4
     private static final int DATA_FXIER_TARGET_VERSION = 3953; // 1.21
 
-    private static DataFixer DATA_FIXER;
     private static Object NBT_OPS_INSTANCE;
     private static Object REFERENCE_ITEM_STACK;
 
@@ -59,9 +54,6 @@ public class ItemCompress {
     private static Method         NMS_SAVE;
 
     static {
-        if (GET_DATA_FIXER != null) {
-            DATA_FIXER = (DataFixer) ReflectionUtils.invokeMethod(GET_DATA_FIXER, DATA_FIXERS_CLASS);
-        }
         if (NBT_OPS_CLASS != null) {
             NBT_OPS_INSTANCE = ReflectionUtils.getFieldValue(NBT_OPS_CLASS, "a");
         }
@@ -160,12 +152,6 @@ public class ItemCompress {
         try {
             Object compoundTag = NBT_IO_READ.invoke(null, new DataInputStream(inputStream));
             Object itemStack;
-
-            if (Version.isAtLeast(Version.v1_20_R4)) {
-                @SuppressWarnings({"rawtypes", "unchecked"})
-                Dynamic<?> dynamic = new Dynamic<>((DynamicOps) NBT_OPS_INSTANCE, compoundTag);
-                compoundTag = DATA_FIXER.update((DSL.TypeReference) REFERENCE_ITEM_STACK, dynamic, DATA_FIXER_SOURCE_VERSION, DATA_FXIER_TARGET_VERSION).getValue();
-            }
 
             if (useRegistry) {
                 if (ITEM_STACK_PARSE_OPTIONAL == null) return null;
