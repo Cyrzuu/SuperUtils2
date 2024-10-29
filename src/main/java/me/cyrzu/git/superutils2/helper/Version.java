@@ -75,6 +75,7 @@ public enum Version {
                 case "1.20.3", "1.20.4" -> Version.v1_20_R3;
                 case "1.20.5", "1.20.6" -> Version.v1_20_R4;
                 case "1.21", "1.21.1" -> Version.v1_21_R1;
+                case "1.21.2", "1.21.3" -> Version.v1_21_R2;
                 default -> UNKNOWN;
             };
         } else {
