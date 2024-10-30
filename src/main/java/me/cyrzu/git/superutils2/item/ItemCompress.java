@@ -121,7 +121,7 @@ public class ItemCompress {
 
             NBT_IO_WRITE.invoke(null, compoundTag, dataOutput);
 
-            return new BigInteger(1, outputStream.toByteArray()).toString(32);
+            return new BigInteger(1, outputStream.toByteArray()).toString(36);
         }
         catch (ReflectiveOperationException exception) {
             exception.printStackTrace();
@@ -135,7 +135,7 @@ public class ItemCompress {
             throw new UnsupportedOperationException("Unsupported server version!");
         }
 
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(compressed, 32).toByteArray());
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(new BigInteger(compressed, 36).toByteArray());
         try {
             Object compoundTag = NBT_IO_READ.invoke(null, new DataInputStream(inputStream));
             Object itemStack;
