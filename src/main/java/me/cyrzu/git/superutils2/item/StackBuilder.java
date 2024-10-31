@@ -154,6 +154,10 @@ public class StackBuilder extends Configurable {
 
             PersistentDataContainer persistentDataContainer = itemMeta.getPersistentDataContainer();
             for (NamespacedKey key : persistentDataContainer.getKeys()) {
+                if(!persistentDataContainer.has(key, PersistentDataType.STRING)) {
+                    continue;
+                }
+
                 String value = persistentDataContainer.get(key, PersistentDataType.STRING);
                 if(!key.getNamespace().equals(NamespacedKey.MINECRAFT) || value == null) {
                     continue;
