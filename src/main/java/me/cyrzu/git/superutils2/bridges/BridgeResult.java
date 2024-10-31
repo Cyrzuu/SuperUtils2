@@ -8,10 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 public class BridgeResult {
 
@@ -24,6 +21,10 @@ public class BridgeResult {
 
     public boolean isEmpty() {
         return mapBridge.isEmpty();
+    }
+
+    public Set<String> keySet() {
+        return mapBridge.keySet();
     }
 
     public Optional<String> getString(@NotNull String key) {
@@ -130,6 +131,23 @@ public class BridgeResult {
     @NotNull
     public BridgeResult getResult(@NotNull String path) {
         return BridgeResult.of(mapBridge.getMapBridge(path));
+    }
+
+    @NotNull
+    public Map<String, BridgeResult> getKeyResults() {
+        return this.getKeyResults(null);
+    }
+
+    @NotNull
+    public Map<String, BridgeResult> getKeyResults(@Nullable String path) {
+        Map<String, BridgeResult> map = new HashMap<>();
+
+        BridgeResult result = path == null ? this : this.getResult(path);
+        for (String key : result.keySet()) {
+            map.put(key, result.getResult(key));
+        }
+
+        return map;
     }
 
     private <T> Optional<T> getObject(@NotNull String path, Class<T> clazz) {

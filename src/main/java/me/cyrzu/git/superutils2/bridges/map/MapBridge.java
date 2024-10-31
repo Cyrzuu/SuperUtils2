@@ -1,6 +1,5 @@
 package me.cyrzu.git.superutils2.bridges.map;
 
-import me.cyrzu.git.superutils2.bridges.map.DynamicMapBridge;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,6 +16,9 @@ public interface MapBridge extends Map<String, Object> {
 
     @NotNull
     MapBridge getMapBridge(@NotNull String path);
+
+    @NotNull
+    Set<String> keySet();
 
     @Nullable
     @Override

@@ -193,12 +193,27 @@ public class SuperConfig {
         return val instanceof StackBuilder itemStack ? itemStack : def;
     }
 
-    @Nullable
+    @NotNull
     public List<?> getList(@NotNull String path) {
-        return configuration.getList(path);
+        List<?> list = configuration.getList(path);
+        return list != null ? list : List.of();
     }
 
-    @Nullable
+    @NotNull
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getList(@NotNull String path, @NotNull Class<T> clazz) {
+        List<?> list = this.getList(path);
+
+        if(Objects.equals(clazz, String.class)) {
+            return (List<T>) list.stream().map(Object::toString).toList();
+        }
+
+        return list.stream()
+                .map(value -> clazz.isAssignableFrom(value.getClass()) ? clazz.cast(value) : null)
+                .filter(Objects::nonNull).toList();
+    }
+
+    @NotNull
     public List<String> getStringList(@NotNull String path) {
         return configuration.getStringList(path);
     }
