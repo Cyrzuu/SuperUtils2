@@ -272,6 +272,18 @@ public class SuperConfig {
 
     }
 
+    @Nullable
+    public ItemStack getItemStackConfig(@NotNull String itemConfig) {
+        JsonItem jsonItem = ITEM_PATTERN.matcher(itemConfig).matches() ? itemFiles.getJsonItem(itemConfig.split(":")[1]) : null;
+        return jsonItem != null ? jsonItem.getItemStack() : StackBuilder.parseString(itemConfig).build();
+    }
+
+    @Nullable
+    public StackBuilder getStackBuilderConfig(@NotNull String itemConfig) {
+        JsonItem jsonItem = ITEM_PATTERN.matcher(itemConfig).matches() ? itemFiles.getJsonItem(itemConfig.split(":")[1]) : null;
+        return jsonItem != null ? jsonItem.getStackBuilder() : StackBuilder.parseString(itemConfig);
+    }
+
     private void saveResource(@NotNull ConfigurationSection config, @NotNull ConfigurationSection resourceConfig, @NotNull String path) {
         for (String key : resourceConfig.getKeys(false)) {
             String newPath = path.isEmpty() ? key : path + "." + key;
