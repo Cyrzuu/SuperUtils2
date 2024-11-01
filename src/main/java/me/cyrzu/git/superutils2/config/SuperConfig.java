@@ -51,6 +51,7 @@ public class SuperConfig {
     @NotNull
     private YamlConfiguration configuration;
 
+    @Getter
     @NotNull
     private final ItemFiles itemFiles;
 
