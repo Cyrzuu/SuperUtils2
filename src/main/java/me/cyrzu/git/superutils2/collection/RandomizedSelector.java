@@ -12,7 +12,7 @@ public class RandomizedSelector<T> {
     private final T defaultValue;
 
     @NotNull
-    private final Map<T, Double> elements;
+    private Map<T, Double> elements;
 
     @NotNull
     private final Random random;
@@ -97,6 +97,18 @@ public class RandomizedSelector<T> {
         }
 
         return defaultValue;
+    }
+
+    public void moveLeft(@NotNull T value) {
+        this.elements = CollectionUtils.moveKey(this.elements, value, -1);
+    }
+
+    public void moveRight(@NotNull T value) {
+        this.elements = CollectionUtils.moveKey(this.elements, value, 1);
+    }
+
+    public void moveOffSet(@NotNull T value, int offSet) {
+        this.elements = CollectionUtils.moveKey(this.elements, value, offSet);
     }
 
 }

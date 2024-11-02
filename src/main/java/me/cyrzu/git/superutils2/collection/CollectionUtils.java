@@ -6,8 +6,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 
 @UtilityClass
 public class CollectionUtils {
@@ -20,14 +19,14 @@ public class CollectionUtils {
 
     @Nullable
     @SafeVarargs
-    public static <K, V> V getFirstPresemt(@NotNull Map<K, V> map, K @NotNull ... keys) {
+    public <K, V> V getFirstPresemt(@NotNull Map<K, V> map, K @NotNull ... keys) {
         return CollectionUtils.getFirstPresemt(null, map, keys);
     }
 
     @Nullable
     @SafeVarargs
     @Contract("!null, _, _ -> !null;")
-    public static <K, V> V getFirstPresemt(@Nullable V def, @NotNull Map<K, V> map, K @NotNull ... keys) {
+    public <K, V> V getFirstPresemt(@Nullable V def, @NotNull Map<K, V> map, K @NotNull ... keys) {
         for (K key : keys) {
             V v = map.get(key);
             if(v != null) {
@@ -36,6 +35,31 @@ public class CollectionUtils {
         }
 
         return def;
+    }
+
+    @NotNull
+    public <K, V> Map<K, V> moveKey(@NotNull Map<K, V> map, K key, int offset) {
+        if(!(map instanceof LinkedHashMap<K,V>)) {
+            return map;
+        }
+
+        List<K> keys = new ArrayList<>(map.keySet());
+        int index = keys.indexOf(key);
+
+        if (index == -1 || offset == 0) {
+            return map;
+        }
+
+        int newIndex = Math.max(0, Math.min(keys.size() - 1, index + offset));
+        keys.remove(index);
+        keys.add(newIndex, key);
+
+        Map<K, V> result = new LinkedHashMap<>();
+        for (K k : keys) {
+            result.put(k, map.get(k));
+        }
+
+        return result;
     }
 
 }
