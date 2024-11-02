@@ -1,6 +1,7 @@
 package me.cyrzu.git.superutils2.sound;
 
 import me.cyrzu.git.superutils2.utils.EnumUtils;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -91,11 +92,9 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
         sound = sound.trim().replace(" ", "_");
         String[] split = sound.split(":");
 
-        Sound anEnum = null;
-        try {
-            anEnum = Sound.valueOf(sound.trim().replace(" ", "_").toUpperCase());
-        } catch (IllegalArgumentException ignored) {}
 
+
+        Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
         return anEnum != null ?
                 "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.getKey().getKey()) :
                 split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
