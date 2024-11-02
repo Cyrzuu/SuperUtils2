@@ -90,7 +90,12 @@ public record PlaySound(@NotNull String sound, float volume, float pitch) {
     private static String formatSound(@NotNull String sound) {
         sound = sound.trim().replace(" ", "_");
         String[] split = sound.split(":");
-        Sound anEnum = EnumUtils.getEnum(sound, Sound.class);
+
+        Sound anEnum = null;
+        try {
+            anEnum = Sound.valueOf(sound.trim().replace(" ", "_").toUpperCase());
+        } catch (IllegalArgumentException ignored) {}
+
         return anEnum != null ?
                 "%s:%s".formatted(anEnum.getKey().getNamespace(), anEnum.getKey().getKey()) :
                 split.length == 1 ? "minecraft:%s".formatted(sound) : "%s:%s".formatted(split[0], split[1]);
